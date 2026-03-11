@@ -2,8 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0D1B2A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
 <title>M&E Imóveis — Sistema de Parcerias</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -14,47 +16,48 @@
   --green: #4CAF82; --red: #E57373;
 }
 
+/* Reset & Base */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { background: var(--navy); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.6; }
+body { background: var(--navy); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; padding-bottom: 80px; }
 
-header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, rgba(22,35,51,1) 0%, rgba(13,27,42,1) 100%); border-bottom: 1px solid var(--navy-border); }
-.logo-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: -1px; margin-bottom: 5px; }
-.logo-sub { font-size: 0.9rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
+/* Header & Menu */
+header { padding: 30px 20px; text-align: center; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); }
+.logo-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 5px; }
 
-.main-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+.tabs { display: flex; overflow-x: auto; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); position: sticky; top: 0; z-index: 100; scrollbar-width: none; }
+.tab { padding: 15px 20px; white-space: nowrap; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; font-weight: 500; flex: 1; text-align: center; }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(201,168,76,0.05); }
 
-/* Dashboard de Filtros */
-.search-card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+/* Containers */
+.view { display: none; padding: 20px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+.view.active { display: block; }
 
-.input-group { display: flex; flex-direction: column; gap: 8px; }
-.input-group label { font-size: 0.8rem; font-weight: 600; color: var(--gold-light); }
-input, select, textarea { background: var(--navy-soft); border: 1px solid var(--navy-border); color: #fff; padding: 12px; border-radius: 8px; font-family: inherit; font-size: 1rem; transition: 0.3s; }
-input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.2); }
+/* Cards & Forms */
+.card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
 
-/* Caixa de Margem Dinâmica */
-#margem-box { display: none; background: rgba(76, 175, 130, 0.15); border: 1px solid var(--green); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; animation: fadeIn 0.4s; }
-#margem-valor { font-size: 1.4rem; font-weight: 700; color: #fff; display: block; }
+.input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+label { font-size: 0.75rem; font-weight: 600; color: var(--gold-light); text-transform: uppercase; }
+input, select, textarea { background: var(--navy-soft); border: 1px solid var(--navy-border); color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; }
 
-.btn { cursor: pointer; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+/* Margem Box */
+#margem-box { display: none; background: rgba(76, 175, 130, 0.15); border: 1px solid var(--green); padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center; }
+#margem-val { font-size: 1.3rem; font-weight: 700; color: #fff; display: block; }
+
+/* Buttons */
+.btn { border: none; border-radius: 8px; padding: 12px 15px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-primary { background: var(--gold); color: var(--navy); width: 100%; }
-.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
 .btn-outline { background: transparent; border: 1px solid var(--navy-border); color: var(--text); font-size: 0.85rem; }
-.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 8px 12px; font-size: 0.8rem; }
 
-/* Cards de Resultados */
-.res-card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.res-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.res-setor { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold-light); }
-.res-valor { font-weight: 700; color: #fff; font-size: 1.1rem; }
-.res-info { font-size: 0.9rem; color: var(--text-dim); display: flex; gap: 15px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; }
-.res-margem-tag { background: var(--green); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; display: inline-block; }
-.res-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+/* Imovel Card */
+.res-card { background: var(--navy-soft); border: 1px solid var(--navy-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--gold); }
+.res-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
 
-@media(max-width: 600px) {
-    .res-actions { grid-template-columns: 1fr 1fr; }
-    .logo-title { font-size: 1.8rem; }
-}
+/* Mapa SVG */
+.mapa-container { width: 100%; background: var(--navy-mid); border-radius: 12px; padding: 10px; overflow: hidden; }
+.setor-svg { cursor: pointer; transition: 0.2s; }
+.setor-svg:hover { filter: brightness(1.3); }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -63,122 +66,179 @@ input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px rg
 
 <header>
     <div class="logo-title">M&E IMÓVEIS</div>
-    <div class="logo-sub">Parcerias Inteligentes</div>
 </header>
 
-<div class="main-container">
-    <div class="search-card">
-        <div class="grid-inputs">
-            <div class="input-group">
-                <label>📍 BUSCAR SETOR</label>
-                <input type="text" id="f-setor" placeholder="Ex: Santa Fé, Maysa..." oninput="atualizar()">
-            </div>
-            <div class="input-group">
-                <label>💰 VALOR ATÉ (R$)</label>
-                <input type="number" id="f-valor" placeholder="Ex: 300000" oninput="calcularMargem(); atualizar();">
-            </div>
-            <div class="input-group">
-                <label>📈 AVALIAÇÃO BANCÁRIA</label>
-                <input type="number" id="f-avaliacao" placeholder="Ex: 340000" oninput="calcularMargem(); atualizar();">
-            </div>
-        </div>
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('ia', this)">✨ IA</div>
+    <div class="tab" onclick="switchTab('busca', this)">🔍 Busca</div>
+    <div class="tab" onclick="switchTab('mapa', this)">🗺️ Mapa</div>
+    <div class="tab" onclick="switchTab('carteira', this)">🏠 Carteira</div>
+    <div class="tab" onclick="switchTab('add', this)">➕ Novo</div>
+</div>
 
-        <div id="margem-box">
-            <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--green); font-weight: 700;">🚀 Oportunidade de Entrada Facilitada</span>
-            <span id="margem-valor">R$ 0,00</span>
-            <small style="color: var(--text-dim)">Margem de financiamento estimada</small>
-        </div>
-
-        <button class="btn btn-primary" onclick="window.open('https://wa.me/5562981860902', '_blank')">
-            💬 Enviar Busca no WhatsApp
-        </button>
+<div id="ia" class="view active">
+    <div class="card">
+        <label>Análise Inteligente (Cole o texto do grupo)</label>
+        <textarea id="ai-input" rows="5" placeholder="Ex: Corretor busca 3/4 no Santa Fé até 320k..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="analisarIA()">Analisar com IA</button>
     </div>
+    <div id="ai-result"></div>
+</div>
 
-    <div id="lista-resultados">
+<div id="busca" class="view">
+    <div class="card">
+        <div class="grid">
+            <div class="input-group">
+                <label>Setor</label>
+                <input type="text" id="b-setor" oninput="filtrar()">
+            </div>
+            <div class="input-group">
+                <label>Valor Máx</label>
+                <input type="number" id="b-valor" oninput="filtrar()">
+            </div>
         </div>
+    </div>
+    <div id="res-busca"></div>
+</div>
+
+<div id="mapa" class="view">
+    <div class="card mapa-container">
+        <div id="mapa-svg-box"></div>
+    </div>
+</div>
+
+<div id="carteira" class="view">
+    <div id="lista-geral"></div>
+</div>
+
+<div id="add" class="view">
+    <div class="card">
+        <div class="input-group"><label>Nome do Imóvel</label><input type="text" id="f-nome"></div>
+        <div class="grid">
+            <div class="input-group"><label>Setor</label><input type="text" id="f-setor"></div>
+            <div class="input-group"><label>Venda (R$)</label><input type="number" id="f-venda" oninput="calcM()"></div>
+            <div class="input-group"><label>Avaliação (R$)</label><input type="number" id="f-aval" oninput="calcM()"></div>
+        </div>
+        <div id="margem-box">
+            <small style="color:var(--green)">🚀 Margem p/ Entrada:</small>
+            <strong id="margem-val">R$ 0,00</strong>
+        </div>
+        <button class="btn btn-primary" onclick="salvarImovel()">Salvar Imóvel</button>
+    </div>
 </div>
 
 <script>
-// Base de Dados (Atualize com seus imóveis)
-const imoveis = [
-    { id: 1, nome: "Casa 3/4 no Santa Fé", setor: "Residencial Santa Fé", valor: 309750, avaliacao: 343291, quartos: 3, suites: 1, area: 110, gatilhos: ["MCMV", "Avaliação Alta"] },
-    { id: 2, nome: "Luxo no Maysa I", setor: "Setor Maysa I", valor: 650000, avaliacao: 910000, quartos: 3, suites: 2, area: 150, gatilhos: ["Luxo", "Entrada Facilitada"] },
-    { id: 3, nome: "3 Suítes Moinho dos Ventos", setor: "Moinho dos Ventos", valor: 1295000, avaliacao: 0, quartos: 3, suites: 3, area: 200, gatilhos: ["Alto Padrão", "Aceita Permuta"] }
+let imoveis = JSON.parse(localStorage.getItem('me_imoveis')) || [
+    { id: 1, nome: "Casa 3/4 Santa Fé", setor: "Residencial Santa Fé", venda: 309750, aval: 343291, q: 3 },
+    { id: 2, nome: "Maysa I Luxo", setor: "Setor Maysa I", venda: 650000, aval: 910000, q: 3 }
 ];
 
-function fmtCur(v) {
-    return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+function switchTab(id, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+    if(id === 'carteira' || id === 'busca') renderLista();
+    if(id === 'mapa') renderMapa();
 }
 
-function calcularMargem() {
-    const v = parseFloat(document.getElementById('f-valor').value) || 0;
-    const a = parseFloat(document.getElementById('f-avaliacao').value) || 0;
+function fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+function calcM() {
+    const v = parseFloat(document.getElementById('f-venda').value) || 0;
+    const a = parseFloat(document.getElementById('f-aval').value) || 0;
     const box = document.getElementById('margem-box');
-    const txt = document.getElementById('margem-valor');
-    
-    if (a > v && v > 0) {
-        const m = a - v;
-        txt.textContent = fmtCur(m);
+    if(a > v && v > 0) {
+        document.getElementById('margem-val').textContent = fmt(a - v);
         box.style.display = 'block';
-    } else {
-        box.style.display = 'none';
-    }
+    } else { box.style.display = 'none'; }
 }
 
-function copiarParaCliente(id) {
+function salvarImovel() {
+    const novo = {
+        id: Date.now(),
+        nome: document.getElementById('f-nome').value,
+        setor: document.getElementById('f-setor').value,
+        venda: parseFloat(document.getElementById('f-venda').value),
+        aval: parseFloat(document.getElementById('f-aval').value)
+    };
+    imoveis.push(novo);
+    localStorage.setItem('me_imoveis', JSON.stringify(imoveis));
+    alert("Imóvel salvo!");
+    switchTab('carteira', document.querySelectorAll('.tab')[3]);
+}
+
+function copiar(id, paraCliente = false) {
     const im = imoveis.find(i => i.id == id);
-    const m = im.avaliacao > im.valor ? im.avaliacao - im.valor : 0;
+    const m = im.aval > im.venda ? im.aval - im.venda : 0;
     
-    const texto = `🏠 *OPORTUNIDADE: ${im.nome.toUpperCase()}*
-📍 Setor: ${im.setor}
-🛌 ${im.quartos} Qts | ${im.suites} Suíte(s)
-📐 ${im.area}m² de área construída
+    let txt = `🏠 *${im.nome.toUpperCase()}*\n📍 ${im.setor}\n💰 Valor: ${fmt(im.venda)}`;
+    if(m > 0) txt += `\n🚀 *Diferencial:* Margem de entrada de ${fmt(m)}`;
+    
+    if(!paraCliente) txt += `\n📲 Parceria: (62) 98186-0902`;
 
-💰 *Investimento: ${fmtCur(im.valor)}*
-${m > 0 ? `🚀 *Diferencial:* Entrada muito facilitada (Avaliação superior)` : ''}
-
-✨ _Interessados, falem comigo para mais detalhes e agendamento!_`;
-
-    navigator.clipboard.writeText(texto).then(() => {
-        alert("✅ Texto para cliente copiado! Agora é só colar no seu WhatsApp.");
-    });
+    navigator.clipboard.writeText(txt).then(() => alert("Copiado!"));
 }
 
-function atualizar() {
-    const setor = document.getElementById('f-setor').value.toLowerCase();
-    const lista = document.getElementById('lista-resultados');
-    lista.innerHTML = '';
-
-    const filtrados = imoveis.filter(i => i.setor.toLowerCase().includes(setor));
-
-    filtrados.forEach(im => {
-        const margem = im.avaliacao > im.valor ? im.avaliacao - im.valor : 0;
-        
-        lista.innerHTML += `
+function renderLista(filtro = imoveis) {
+    const containers = [document.getElementById('lista-geral'), document.getElementById('res-busca')];
+    containers.forEach(c => {
+        if(!c) return;
+        c.innerHTML = filtro.map(im => `
             <div class="res-card">
-                <div class="res-header">
-                    <div class="res-setor">${im.nome}</div>
-                    <div class="res-valor">${fmtCur(im.valor)}</div>
-                </div>
-                <div class="res-info">
-                    <span>🛌 ${im.quartos} Qts</span>
-                    <span>📐 ${im.area}m²</span>
-                    <span>📍 ${im.setor}</span>
-                </div>
-                ${margem > 0 ? `<div class="res-margem-tag">📈 MARGEM DE R$ ${margem.toLocaleString('pt-BR')} P/ ENTRADA</div>` : ''}
-                
+                <strong>${im.nome}</strong><br>
+                <small>${im.setor}</small><br>
+                <div style="margin:5px 0">Venda: ${fmt(im.venda)}</div>
                 <div class="res-actions">
-                    <button class="btn btn-outline" onclick="copiarParaCliente(${im.id})">📋 Copiar p/ Cliente</button>
-                    <button class="btn btn-outline" onclick="window.open('https://www.google.com/maps/search/${im.setor}+Goiania', '_blank')">📍 Localização</button>
-                    <button class="btn btn-primary" style="padding: 8px; font-size: 0.8rem;" onclick="window.open('https://wa.me/5562981860902?text=Tenho+interesse+no+imovel+${im.nome}', '_blank')">🤝 Parceria</button>
+                    <button class="btn btn-outline btn-sm" onclick="copiar(${im.id}, true)">📱 P/ Cliente</button>
+                    <button class="btn btn-primary btn-sm" onclick="copiar(${im.id})">🤝 Parceria</button>
                 </div>
             </div>
-        `;
+        `).join('');
     });
 }
 
-// Iniciar lista
-atualizar();
+function filtrar() {
+    const s = document.getElementById('b-setor').value.toLowerCase();
+    const v = parseFloat(document.getElementById('b-valor').value) || Infinity;
+    const res = imoveis.filter(i => i.setor.toLowerCase().includes(s) && i.venda <= v);
+    renderLista(res);
+}
+
+function renderMapa() {
+    const box = document.getElementById('mapa-svg-box');
+    box.innerHTML = `
+        <svg viewBox="0 0 200 120" style="width:100%">
+            <rect x="10" y="10" width="80" height="40" rx="5" fill="var(--navy-soft)" class="setor-svg" onclick="alert('Santa Fé selecionado')" />
+            <text x="50" y="35" fill="white" font-size="6" text-anchor="middle">Santa Fé</text>
+            <rect x="100" y="10" width="80" height="40" rx="5" fill="var(--navy-soft)" class="setor-svg" />
+            <text x="140" y="35" fill="white" font-size="6" text-anchor="middle">Maysa</text>
+            <rect x="10" y="60" width="170" height="40" rx="5" fill="var(--gold-dim)" />
+            <text x="95" y="85" fill="white" font-size="8" text-anchor="middle">Mapa de Goiânia e Região</text>
+        </svg>
+    `;
+}
+
+async function analisarIA() {
+    const input = document.getElementById('ai-input').value;
+    const resDiv = document.getElementById('ai-result');
+    resDiv.innerHTML = "<p>Analisando...</p>";
+    
+    // Simulação de busca inteligente
+    setTimeout(() => {
+        const achados = imoveis.filter(i => input.toLowerCase().includes(i.setor.toLowerCase().split(' ')[0]));
+        if(achados.length > 0) {
+            resDiv.innerHTML = "<h4>✅ Imóveis Encontrados:</h4>" + achados.map(i => `
+                <div class="res-card">${i.nome} - ${fmt(i.venda)}</div>
+            `).join('');
+        } else {
+            resDiv.innerHTML = "<p>Nenhum imóvel compatível na carteira no momento.</p>";
+        }
+    }, 1000);
+}
+
+// Inicialização
+renderLista();
 </script>
 </body>
 </html>
