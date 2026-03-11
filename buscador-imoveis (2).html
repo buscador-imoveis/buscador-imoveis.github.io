@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&E Imóveis — Sistema de Parcerias</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C; --gold-light: #E8C97A; --gold-dim: #8B6F2E;
+  --navy: #0D1B2A; --navy-mid: #162333; --navy-soft: #1E2F42; --navy-border: #2A3F57;
+  --cream: #F5F0E8; --text: #E8E0D0; --text-dim: #9BA8B5;
+  --green: #4CAF82; --red: #E05555;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text); min-height:100vh; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse at 15% 15%, rgba(201,168,76,.07) 0%, transparent 55%),
+              radial-gradient(ellipse at 85% 85%, rgba(201,168,76,.04) 0%, transparent 55%);
+}
+
+/* HEADER */
+header {
+  position:sticky; top:0; z-index:200;
+  background:rgba(13,27,42,.96); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--navy-border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 22px; height:62px; gap:12px;
+}
+.logo { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; color:var(--gold); flex-shrink:0; }
+.logo small { display:block; font-family:'DM Sans',sans-serif; font-size:10px; font-weight:400; color:var(--text-dim); letter-spacing:1.2px; }
+.tabs { display:flex; gap:3px; background:var(--navy-mid); border:1px solid var(--navy-border); border-radius:10px; padding:3px; }
+.tab { padding:6px 13px; border-radius:7px; border:none; background:transparent; color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:all .18s; white-space:nowrap; }
+.tab.active { background:var(--gold); color:var(--navy); font-weight:700; }
+.tab:not(.active):hover { color:var(--gold-light); }
+
+/* MAIN */
+main { position:relative; z-index:1; max-width:920px; margin:0 auto; padding:26px 16px 70px; }
+.section { display:none; }
+.section.active { display:block; }
+
+/* CARDS */
+.card { background:var(--navy-mid); border:1px solid var(--navy-border); border-radius:15px; padding:24px; margin-bottom:16px; }
+.card-title { font-family:'Playfair Display',serif; font-size:17px; color:var(--gold); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+/* FORM */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-group.full { grid-column:1/-1; }
+label { font-size:10px; font-weight:700; color:var(--gold-dim); letter-spacing:1.1px; text-transform:uppercase; }
+input,select,textarea { background:var(--navy-soft); border:1px solid var(--navy-border); border-radius:9px; padding:10px 13px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; transition:border-color .18s; width:100%; }
+input:focus,select:focus,textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,.1); }
+select option { background:var(--navy-mid); }
+textarea { resize:vertical; min-height:75px; }
+
+/* MARGEM BOX */
+.margem-box { background:rgba(76,175,130,.12); border:1px solid rgba(76,175,130,.3); border-radius:9px; padding:11px 14px; margin-top:5px; font-size:13px; color:var(--green); display:none; }
+.margem-box strong { font-size:16px; }
+
+/* TAGS / GATILHOS */
+.tags-container { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
+.tag-chip { padding:6px 12px; border-radius:20px; font-size:12px; font-weight:500; border:1px solid var(--navy-border); background:var(--navy-soft); color:var(--text-dim); cursor:pointer; transition:all .15s; user-select:none; }
+.tag-chip:hover { border-color:var(--gold-dim); color:var(--gold-light); }
+.tag-chip.selected { background:var(--gold); color:var(--navy); border-color:var(--gold); font-weight:700; }
+
+/* BTNS */
+.btn { padding:10px 20px; border-radius:9px; border:none; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .18s; display:inline-flex; align-items:center; gap:7px; }
+.btn-gold { background:var(--gold); color:var(--navy); }
+.btn-gold:hover { background:var(--gold-light); transform:translateY(-1px); }
+.btn-outline { background:transparent; border:1px solid var(--navy-border); color:var(--text-dim); }
+.btn-outline:hover { border-color:var(--gold-dim); color:var(--gold); }
+.btn-danger { background:transparent; border:1px solid rgba(224,85,85,.3); color:var(--red); font-size:11px; padding:5px 10px; }
+.btn-danger:hover { background:rgba(224,85,85,.1); }
+.btn-green { background:var(--green); color:#fff; }
+.btn-green:hover { opacity:.88; transform:translateY(-1px); }
+.btn-full { width:100%; justify-content:center; padding:14px; font-size:14px; }
+.btn-sm { font-size:11px; padding:6px 12px; }
+
+/* BUSCA */
+#msgBusca { width:100%; min-height:110px; padding:14px; font-size:14px; line-height:1.65; }
+
+/* RESULTADOS */
+.res-card { background:var(--navy-soft); border:1px solid var(--navy-border); border-radius:13px; padding:17px; margin-bottom:12px; animation:fadeUp .3s ease; transition:border-color .18s, transform .18s; }
+.res-card:hover { border-color:var(--gold-dim); transform:translateY(-2px); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.res-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:9px; }
+.res-nome { font-family:'Playfair Display',serif; font-size:15px; color:var(--cream); font-weight:700; }
+.score-badge { background:linear-gradient(135deg,var(--gold),var(--gold-dim)); color:var(--navy); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+.tags-row { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
+.tag { font-size:11px; padding:3px 9px; border-radius:14px; background:var(--navy-border); color:var(--text-dim); font-weight:500; }
+.tag.match { background:rgba(76,175,130,.15); color:var(--green); border:1px solid rgba(76,175,130,.3); }
+.tag.gatilho { background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+.tag.margem { background:rgba(76,175,130,.2); color:var(--green); border:1px solid rgba(76,175,130,.4); font-weight:700; }
+.res-preco { font-size:17px; font-weight:700; color:var(--gold); }
+.res-aval { font-size:12px; color:var(--text-dim); margin-top:2px; }
+.res-margem { font-size:13px; color:var(--green); font-weight:600; margin-top:3px; }
+.res-motivo { font-size:12px; color:var(--text-dim); line-height:1.5; border-top:1px solid var(--navy-border); padding-top:9px; margin-top:9px; }
+.res-actions { display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
+.wpp-output { background:var(--navy); border:1px solid var(--navy-border); border-radius:10px; padding:13px; font-size:13px; line-height:1.7; white-space:pre-wrap; color:var(--text); margin-top:9px; }
+
+/* LISTA */
+.imovel-item { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--navy-soft); border:1px solid var(--navy-border); border-radius:11px; margin-bottom:8px; animation:fadeUp .2s ease; }
+.imovel-info { flex:1; }
+.imovel-nome { font-weight:600; font-size:13px; color:var(--cream); }
+.imovel-det { font-size:11px; color:var(--text-dim); margin-top:3px; }
+.imovel-gtags { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+.imovel-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.imovel-preco { font-weight:700; color:var(--gold); font-size:13px; white-space:nowrap; }
+
+/* STATS */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+.stat-box { background:var(--navy-mid); border:1px solid var(--navy-border); border-radius:11px; padding:13px; text-align:center; }
+.stat-num { font-family:'Playfair Display',serif; font-size:24px; color:var(--gold); font-weight:700; }
+.stat-label { font-size:10px; color:var(--text-dim); margin-top:3px; letter-spacing:.4px; }
+
+/* ENTRADA */
+.entrada-card { background:linear-gradient(135deg,rgba(76,175,130,.1),rgba(76,175,130,.03)); border:1px solid rgba(76,175,130,.3); border-radius:13px; padding:18px; margin-bottom:12px; animation:fadeUp .3s ease; transition:border-color .18s, transform .18s; }
+.entrada-card:hover { border-color:rgba(76,175,130,.55); transform:translateY(-2px); }
+.entrada-destaque { font-size:20px; font-weight:700; color:var(--green); }
+.entrada-label { font-size:10px; color:rgba(76,175,130,.65); text-transform:uppercase; letter-spacing:1px; }
+
+/* DIVIDER */
+.divider { display:flex; align-items:center; gap:12px; margin:18px 0; }
+.divider-line { flex:1; height:1px; background:var(--navy-border); }
+.divider-text { font-size:10px; color:var(--text-dim); letter-spacing:1px; white-space:nowrap; }
+
+/* UTILS */
+.loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:34px; color:var(--text-dim); font-size:13px; }
+.spinner { width:20px; height:20px; border:2px solid var(--navy-border); border-top-color:var(--gold); border-radius:50%; animation:spin .65s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.empty { text-align:center; padding:42px 20px; color:var(--text-dim); }
+.empty .emoji { font-size:36px; margin-bottom:10px; }
+.empty p { font-size:13px; line-height:1.6; }
+#toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--navy-soft); border:1px solid var(--gold); color:var(--text); padding:10px 22px; border-radius:50px; font-size:13px; font-weight:500; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; }
+#toast.show { transform:translateX(-50%) translateY(0); }
+
+/* PASTE */
+.paste-card { background:linear-gradient(135deg,var(--navy-mid),rgba(201,168,76,.05)); border:1px solid var(--gold-dim); border-radius:15px; padding:22px; margin-bottom:16px; }
+#paste-imovel { width:100%; min-height:115px; padding:13px; font-size:13px; line-height:1.6; }
+
+@media(max-width:600px) {
+  .form-grid { grid-template-columns:1fr; }
+  .stats-row { grid-template-columns:1fr 1fr; }
+  header { flex-wrap:wrap; height:auto; padding:10px 12px; gap:8px; }
+  .tabs { width:100%; justify-content:center; }
+  .tab { padding:5px 9px; font-size:11px; }
+  .logo small { display:none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">M&E Imóveis<small>SISTEMA DE PARCERIAS</small></div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('buscar',this)">🔍 Buscar</button>
+    <button class="tab" onclick="switchTab('lote',this)">📦 Em Lote</button>
+    <button class="tab" onclick="switchTab('cadastrar',this)">➕ Cadastrar</button>
+    <button class="tab" onclick="switchTab('meus',this)">🏠 Carteira</button>
+    <button class="tab" onclick="switchTab('entrada',this)">💚 Entrada Fácil</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════ BUSCAR ══════ -->
+<div class="section active" id="tab-buscar">
+  <div class="card">
+    <div class="card-title">💬 Cole a mensagem do grupo</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:13px;line-height:1.6;">Cole qualquer busca do grupo de corretores. A IA interpreta, encontra os imóveis compatíveis e gera o script de parceria pronto.</p>
+    <textarea id="msgBusca" placeholder="Ex: Boa tarde! Tenho cliente buscando casa no St. Maysa ou Santa Fé, 3 quartos, MCMV, até 280k. Alguém tem?"></textarea>
+    <button class="btn btn-gold btn-full" style="margin-top:12px;" onclick="buscarComIA()">✨ Buscar com Inteligência Artificial</button>
+  </div>
+  <div id="resultados-container"></div>
+</div>
+
+<!-- ══════ CADASTRAR ══════ -->
+<div class="section" id="tab-cadastrar">
+  <div class="paste-card">
+    <div class="card-title" style="margin-bottom:10px;">✨ Cole o anúncio — a IA preenche tudo</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:11px;line-height:1.6;">Cole mensagem de WhatsApp, ZAP, OLX ou qualquer descrição. A IA extrai tudo automaticamente.</p>
+    <textarea id="paste-imovel" placeholder="Ex: Vendo casa no St. Maysa I, 3 quartos, 1 suíte, 140m², 2 vagas. Avaliação R$ 340.000, venda R$ 280.000. Aceita MCMV e FGTS. Churrasqueira, portão eletrônico."></textarea>
+    <div style="display:flex;gap:9px;margin-top:11px;">
+      <button class="btn btn-gold" style="flex:1;justify-content:center;" onclick="preencherComIA()">🤖 Preencher com IA</button>
+      <button class="btn btn-outline" onclick="document.getElementById('paste-imovel').value=''">Limpar</button>
+    </div>
+    <div id="paste-status"></div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-text">OU PREENCHA MANUALMENTE</div><div class="divider-line"></div></div>
+
+  <div class="card">
+    <div class="card-title">🏡 Dados do Imóvel</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nome / Identificação</label>
+        <input type="text" id="f-nome" placeholder="Ex: Casa St. Maysa I 3q, Lote Jardim América 300m²">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="f-tipo">
+          <option value="">Selecione...</option>
+          <option>Apartamento</option><option>Casa</option><option>Lote / Terreno</option>
+          <option>Chácara</option><option>Comercial</option><option>Kitnet / Studio</option><option>Sobrado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Setor / Bairro</label>
+        <input type="text" id="f-setor" placeholder="Ex: St. Maysa, Santa Fé, Moinho">
+      </div>
+      <div class="form-group full">
+        <label>Setores próximos (aumenta o match nas buscas)</label>
+        <input type="text" id="f-proximos" placeholder="Ex: Marista, Jardim Goiás, Nova Suíça">
+      </div>
+      <div class="form-group">
+        <label>Quartos</label>
+        <select id="f-quartos">
+          <option value="0">Studio</option><option value="1">1 quarto</option><option value="2">2 quartos</option>
+          <option value="3">3 quartos</option><option value="4">4 quartos</option><option value="5">5+ quartos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Suítes</label>
+        <select id="f-suites">
+          <option value="0">Nenhuma</option><option value="1">1 suíte</option><option value="2">2 suítes</option>
+          <option value="3">3 suítes</option><option value="4">4+ suítes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Área (m²)</label>
+        <input type="number" id="f-area" placeholder="Ex: 140">
+      </div>
+      <div class="form-group">
+        <label>💰 Valor de Venda (R$)</label>
+        <input type="number" id="f-valor" placeholder="Ex: 280000" oninput="calcularMargem()">
+      </div>
+      <div class="form-group full">
+        <label>📊 Avaliação Bancária (R$) — deixe 0 se não souber</label>
+        <input type="number" id="f-avaliacao" placeholder="Ex: 340000" oninput="calcularMargem()">
+        <div class="margem-box" id="margem-box">
+          📈 Margem de entrada: <strong id="margem-valor"></strong> — cliente precisa de menos entrada!
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Aceita Financiamento?</label>
+        <select id="f-financiamento">
+          <option value="sim">Sim</option><option value="nao">Não</option><option value="parcial">Parcialmente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Aceita Permuta?</label>
+        <select id="f-permuta">
+          <option value="nao">Não</option><option value="sim">Sim</option><option value="parcial">Parcialmente</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>🏷️ Gatilhos de Venda (clique para selecionar)</label>
+        <div class="tags-container" id="gatilhos-container">
+          <span class="tag-chip" data-val="MCMV" onclick="toggleTag(this)">🏛️ MCMV</span>
+          <span class="tag-chip" data-val="Alto Padrão" onclick="toggleTag(this)">💎 Alto Padrão</span>
+          <span class="tag-chip" data-val="Entrada Zero" onclick="toggleTag(this)">🚀 Entrada Zero</span>
+          <span class="tag-chip" data-val="Avaliação Alta" onclick="toggleTag(this)">📈 Avaliação Alta</span>
+          <span class="tag-chip" data-val="Aceita FGTS" onclick="toggleTag(this)">💳 Aceita FGTS</span>
+          <span class="tag-chip" data-val="Aceita Permuta" onclick="toggleTag(this)">🔄 Aceita Permuta</span>
+          <span class="tag-chip" data-val="Pronto para Morar" onclick="toggleTag(this)">🏠 Pronto p/ Morar</span>
+          <span class="tag-chip" data-val="Doc Grátis" onclick="toggleTag(this)">📋 Doc Grátis</span>
+          <span class="tag-chip" data-val="Lançamento" onclick="toggleTag(this)">✨ Lançamento</span>
+          <span class="tag-chip" data-val="Oportunidade" onclick="toggleTag(this)">🔥 Oportunidade</span>
+          <span class="tag-chip" data-val="Baixo Condomínio" onclick="toggleTag(this)">💵 Baixo Cond.</span>
+          <span class="tag-chip" data-val="Perto de Escola" onclick="toggleTag(this)">🏫 Perto de Escola</span>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Diferenciais / Observações</label>
+        <textarea id="f-obs" placeholder="Ex: 2 vagas, churrasqueira, piscina, condomínio fechado, portão eletrônico..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label>Mensagem de divulgação (WhatsApp / ZAP)</label>
+        <textarea id="f-msg" placeholder="Cole o texto que você já usa para divulgar este imóvel..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:9px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="limparForm()">Limpar</button>
+      <button class="btn btn-gold" onclick="salvarImovel()">💾 Salvar Imóvel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ EM LOTE ══════ -->
+<div class="section" id="tab-lote">
+  <div class="card" style="border-color:var(--gold-dim);background:linear-gradient(135deg,var(--navy-mid),rgba(201,168,76,.04));">
+    <div class="card-title">📦 Varredura em Lote</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px;line-height:1.6;">
+      Abriu o WhatsApp e chegaram várias mensagens de busca em grupos diferentes? Cole tudo aqui de uma vez — separe cada mensagem por uma linha em branco. A IA lê todas, filtra só as buscas relevantes e já mostra os seus imóveis compatíveis.
+    </p>
+    <textarea id="lote-input" style="width:100%;min-height:200px;padding:14px;font-size:13px;line-height:1.7;" placeholder="Cole aqui as mensagens dos grupos. Separe cada uma com uma linha em branco.
+
+Exemplo:
+
+Boa tarde pessoal! Cliente buscando casa no St. Maysa, 3q, MCMV, até 280k.
+
+Olá corretores, alguém tem apto no Setor Bueno ou Marista? 2 quartos, financiamento.
+
+Procuro lote no Jardim América ou região, até 80k. Tem alguém?"></textarea>
+    <div style="display:flex;gap:9px;margin-top:12px;">
+      <button class="btn btn-gold" style="flex:1;justify-content:center;padding:14px;" onclick="processarLote()">🤖 Analisar todas as mensagens</button>
+      <button class="btn btn-outline" onclick="document.getElementById('lote-input').value='';document.getElementById('lote-resultados').innerHTML=''">Limpar</button>
+    </div>
+  </div>
+  <div id="lote-status"></div>
+  <div id="lote-resultados"></div>
+</div>
+
+<!-- ══════ CARTEIRA ══════ -->
+<div class="section" id="tab-meus">
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="st-total">0</div><div class="stat-label">Imóveis</div></div>
+    <div class="stat-box"><div class="stat-num" id="st-tipos">0</div><div class="stat-label">Tipos</div></div>
+    <div class="stat-box"><div class="stat-num" id="st-setores">0</div><div class="stat-label">Setores</div></div>
+    <div class="stat-box"><div class="stat-num" id="st-entrada">0</div><div class="stat-label">Entrada Fácil</div></div>
+  </div>
+  <div id="lista-imoveis"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+</div>
+
+<!-- ══════ ENTRADA FACILITADA ══════ -->
+<div class="section" id="tab-entrada">
+  <div class="card" style="background:linear-gradient(135deg,rgba(76,175,130,.1),rgba(76,175,130,.04));border-color:rgba(76,175,130,.3);">
+    <div class="card-title" style="color:var(--green);">💚 Imóveis com Entrada Facilitada</div>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Onde a <strong style="color:var(--green)">avaliação bancária é maior que o preço de venda</strong>. O banco financia mais, o cliente precisa de menos entrada — ou entra com zero. Perfeito para cliente travado no banco.</p>
+  </div>
+  <div id="lista-entrada"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+</div>
+
+</main>
+<div id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app = initializeApp({
+  apiKey:"AIzaSyDPPWetVT4Kkgsf2yzPc5XAyUn3bZDVnR4",
+  authDomain:"imoveis-cc9ac.firebaseapp.com", projectId:"imoveis-cc9ac",
+  storageBucket:"imoveis-cc9ac.appspot.com", messagingSenderId:"932401411828",
+  appId:"1:932401411828:web:18acd182e3b90cb23510a1"
+});
+const db=getFirestore(app);
+window._db=db; window._col=collection; window._add=addDoc;
+window._get=getDocs; window._del=deleteDoc; window._doc=doc; window._ts=serverTimestamp;
+window.addEventListener('load',()=>carregarImoveis());
+</script>
+
+<script>
+// ── NAV ──
+function switchTab(tab,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='meus'||tab==='entrada') carregarImoveis();
+}
+window.switchTab=switchTab;
+
+// ── TOAST ──
+function toast(msg,d=2800){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),d);
+}
+
+// ── UTILS ──
+function fmtCur(v){ const n=parseFloat(String(v).replace(/\D/g,'')); return n?'R$ '+n.toLocaleString('pt-BR'):'—'; }
+
+function toggleTag(el){ el.classList.toggle('selected'); }
+window.toggleTag=toggleTag;
+
+function getGatilhos(){ return [...document.querySelectorAll('#gatilhos-container .tag-chip.selected')].map(c=>c.dataset.val); }
+
+function calcularMargem(){
+  const val=parseFloat(document.getElementById('f-valor').value)||0;
+  const aval=parseFloat(document.getElementById('f-avaliacao').value)||0;
+  const box=document.getElementById('margem-box');
+  if(aval>val&&val>0){
+    document.getElementById('margem-val').textContent=fmtCur(aval-val);
+    box.style.display='block';
+    // auto-gatilhos
+    document.querySelectorAll('#gatilhos-container .tag-chip').forEach(c=>{
+      if(c.dataset.val==='Avaliação Alta') c.classList.add('selected');
+      if(c.dataset.val==='Entrada Zero'&&(aval-val)/aval>=0.8) c.classList.add('selected');
+    });
+  } else { box.style.display='none'; }
+}
+window.calcularMargem=calcularMargem;
+
+// ── SALVAR ──
+async function salvarImovel(){
+  const nome=document.getElementById('f-nome').value.trim();
+  const tipo=document.getElementById('f-tipo').value;
+  const setor=document.getElementById('f-setor').value.trim();
+  if(!nome||!tipo||!setor){toast('⚠️ Preencha nome, tipo e setor!');return;}
+  const imovel={
+    nome,tipo,setor,
+    setoresProximos:document.getElementById('f-proximos').value.trim(),
+    quartos:parseInt(document.getElementById('f-quartos').value)||0,
+    suites:parseInt(document.getElementById('f-suites').value)||0,
+    area:parseFloat(document.getElementById('f-area').value)||0,
+    valor:parseFloat(document.getElementById('f-valor').value)||0,
+    avaliacao:parseFloat(document.getElementById('f-avaliacao').value)||0,
+    financiamento:document.getElementById('f-financiamento').value,
+    permuta:document.getElementById('f-permuta').value,
+    gatilhos:getGatilhos(),
+    obs:document.getElementById('f-obs').value.trim(),
+    msgDivulgacao:document.getElementById('f-msg').value.trim(),
+    criadoEm:window._ts()
+  };
+  try{
+    await window._add(window._col(window._db,'buscador_imoveis'),imovel);
+    toast('✅ Imóvel salvo!');
+    limparForm();
+    document.querySelectorAll('.tab')[2].click();
+  }catch(e){console.error(e);toast('❌ Erro ao salvar.');}
+}
+window.salvarImovel=salvarImovel;
+
+function limparForm(){
+  ['f-nome','f-setor','f-proximos','f-area','f-valor','f-avaliacao','f-obs','f-msg'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  ['f-tipo','f-quartos','f-suites','f-financiamento','f-permuta'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.selectedIndex=0;
+  });
+  document.querySelectorAll('#gatilhos-container .tag-chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('margem-box').style.display='none';
+  document.getElementById('paste-imovel').value='';
+  document.getElementById('paste-status').innerHTML='';
+}
+window.limparForm=limparForm;
+
+// ── CARREGAR ──
+let cache=[];
+async function carregarImoveis(){
+  try{
+    const snap=await window._get(window._col(window._db,'buscador_imoveis'));
+    cache=[];
+    snap.forEach(d=>cache.push({id:d.id,...d.data()}));
+    renderLista(); renderEntrada(); atualizarStats();
+  }catch(e){
+    ['lista-imoveis','lista-entrada'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML='<div class="empty"><div class="emoji">⚠️</div><p>Erro ao carregar. Verifique o Firebase.</p></div>';
+    });
+  }
+}
+window.carregarImoveis=carregarImoveis;
+
+function renderLista(){
+  const el=document.getElementById('lista-imoveis');
+  if(!el)return;
+  if(!cache.length){el.innerHTML='<div class="empty"><div class="emoji">🏠</div><p>Nenhum imóvel cadastrado ainda.</p></div>';return;}
+  el.innerHTML=cache.map(im=>`
+    <div class="imovel-item">
+      <div class="imovel-info">
+        <div class="imovel-nome">${im.nome}</div>
+        <div class="imovel-det">${im.tipo} · ${im.setor}${im.quartos?` · ${im.quartos}q`:''}${im.area?` · ${im.area}m²`:''}</div>
+        <div class="imovel-gtags">
+          ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
+          ${im.avaliacao&&im.avaliacao>im.valor?`<span class="tag margem">📈 +${fmtCur(im.avaliacao-im.valor)}</span>`:''}
+        </div>
+      </div>
+      <div class="imovel-right">
+        <div style="text-align:right">
+          <div class="imovel-preco">${fmtCur(im.valor)}</div>
+          ${im.avaliacao?`<div style="font-size:10px;color:var(--text-dim)">aval. ${fmtCur(im.avaliacao)}</div>`:''}
+        </div>
+        <button class="btn btn-danger" onclick="deletar('${im.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderEntrada(){
+  const el=document.getElementById('lista-entrada');
+  if(!el)return;
+  const lista=cache.filter(im=>im.avaliacao&&im.avaliacao>im.valor).sort((a,b)=>(b.avaliacao-b.valor)-(a.avaliacao-a.valor));
+  if(!lista.length){
+    el.innerHTML='<div class="empty"><div class="emoji">💚</div><p>Nenhum imóvel com avaliação acima do valor.<br>Cadastre imóveis com o campo <strong>Avaliação Bancária</strong> preenchido.</p></div>';return;
+  }
+  el.innerHTML=lista.map(im=>{
+    const margem=im.avaliacao-im.valor;
+    const pct=Math.round((margem/im.avaliacao)*100);
+    return `<div class="entrada-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:15px;color:var(--cream);font-weight:700;">${im.nome}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">${im.tipo} · ${im.setor}${im.quartos?` · ${im.quartos}q`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="entrada-label">margem de entrada</div>
+          <div class="entrada-destaque">${fmtCur(margem)}</div>
+          <div style="font-size:11px;color:rgba(76,175,130,.6);">${pct}% a menos que o valor</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:11px;">
+        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Venda</div><div style="font-size:16px;font-weight:700;color:var(--gold);">${fmtCur(im.valor)}</div></div>
+        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Avaliação</div><div style="font-size:16px;font-weight:700;color:var(--green);">${fmtCur(im.avaliacao)}</div></div>
+      </div>
+      <div class="tags-row">
+        ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
+        ${im.financiamento==='sim'?'<span class="tag match">✓ Financiamento</span>':''}
+      </div>
+      <div style="display:flex;gap:7px;margin-top:11px;flex-wrap:wrap;">
+        ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
+        <button class="btn btn-green btn-sm" onclick="gerarScript50('${im.id}','e')">🤝 Gerar script 50/50</button>
+      </div>
+      <div id="s50e-${im.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+function atualizarStats(){
+  document.getElementById('st-total').textContent=cache.length;
+  document.getElementById('st-tipos').textContent=new Set(cache.map(i=>i.tipo).filter(Boolean)).size;
+  document.getElementById('st-setores').textContent=new Set(cache.map(i=>i.setor).filter(Boolean)).size;
+  document.getElementById('st-entrada').textContent=cache.filter(i=>i.avaliacao&&i.avaliacao>i.valor).length;
+}
+
+async function deletar(id){
+  if(!confirm('Remover este imóvel?'))return;
+  try{
+    await window._del(window._doc(window._db,'buscador_imoveis',id));
+    cache=cache.filter(i=>i.id!==id);
+    renderLista(); renderEntrada(); atualizarStats();
+    toast('🗑️ Removido');
+  }catch(e){toast('❌ Erro ao remover');}
+}
+window.deletar=deletar;
+
+// ── BUSCA IA ──
+async function buscarComIA(){
+  const msg=document.getElementById('msgBusca').value.trim();
+  if(!msg){toast('⚠️ Cole uma mensagem primeiro!');return;}
+  if(!cache.length) await carregarImoveis();
+  const container=document.getElementById('resultados-container');
+  if(!cache.length){container.innerHTML='<div class="empty"><div class="emoji">🏠</div><p>Cadastre imóveis primeiro.</p></div>';return;}
+
+  container.innerHTML='<div class="loading"><div class="spinner"></div> Analisando mensagem...</div>';
+
+  const lista=cache.map((im,i)=>({
+    indice:i,nome:im.nome,tipo:im.tipo,setor:im.setor,
+    setoresProximos:im.setoresProximos||'',
+    quartos:im.quartos,area:im.area,valor:im.valor,avaliacao:im.avaliacao||0,
+    financiamento:im.financiamento,permuta:im.permuta,
+    gatilhos:im.gatilhos||[],obs:im.obs||''
+  }));
+
+  const prompt=`Você é assistente da M&E Imóveis em Goiânia.
+
+Mensagem do grupo de corretores:
+"""${msg}"""
+
+Imóveis disponíveis:
+${JSON.stringify(lista,null,2)}
+
+Encontre os mais compatíveis. Considere setor E setoresProximos, tipo, valor, quartos, gatilhos.
+Responda SOMENTE JSON sem markdown:
+{"interpretacao":"o que buscam em 1-2 frases","resultados":[{"indice":0,"score":92,"motivo":"por que atende","pontos_match":["setor próximo","3q","MCMV"]}]}
+Score >= 40 apenas. Máximo 5 resultados. Ordem decrescente de score.`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content?.map(c=>c.text||'').join('');
+    let res; try{res=JSON.parse(raw.trim());}catch{const m=raw.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
+    if(!res?.resultados) throw new Error('Resposta inválida');
+    renderResultados(res,msg);
+  }catch(e){container.innerHTML=`<div class="empty"><div class="emoji">❌</div><p>Erro: ${e.message}</p></div>`;}
+}
+window.buscarComIA=buscarComIA;
+
+function renderResultados(res,msgOrig){
+  const container=document.getElementById('resultados-container');
+  if(!res.resultados.length){
+    container.innerHTML='<div class="card"><div class="empty"><div class="emoji">🤷</div><p>Nenhum imóvel compatível.<br>Tente cadastrar mais imóveis.</p></div></div>';return;
+  }
+  let html=`<div class="card" style="margin-bottom:14px;"><div class="card-title">🧠 Interpretação</div><p style="font-size:13px;color:var(--text);line-height:1.6;">${res.interpretacao}</p></div>
+  <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">✅ ${res.resultados.length} imóvel(is) compatível(is)</div>`;
+
+  res.resultados.forEach(r=>{
+    const im=cache[r.indice]; if(!im)return;
+    const margem=im.avaliacao&&im.avaliacao>im.valor?im.avaliacao-im.valor:0;
+    const safeMsg=msgOrig.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+    html+=`<div class="res-card">
+      <div class="res-header">
+        <div class="res-nome">${im.nome}</div>
+        <div class="score-badge">⭐ ${r.score}%</div>
+      </div>
+      <div class="tags-row">
+        <span class="tag">${im.tipo}</span>
+        <span class="tag">📍 ${im.setor}</span>
+        ${im.quartos?`<span class="tag">${im.quartos}q`+`</span>`:''}
+        ${im.area?`<span class="tag">${im.area}m²</span>`:''}
+        ${(r.pontos_match||[]).map(p=>`<span class="tag match">✓ ${p}</span>`).join('')}
+        ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
+        ${margem?`<span class="tag margem">📈 +${fmtCur(margem)}</span>`:''}
+      </div>
+      <div class="res-preco">${fmtCur(im.valor)}</div>
+      ${im.avaliacao?`<div class="res-aval">Avaliação: ${fmtCur(im.avaliacao)}</div>`:''}
+      ${margem?`<div class="res-margem">💚 Margem de entrada: ${fmtCur(margem)} — cliente precisa de menos!</div>`:''}
+      <div class="res-motivo">💡 ${r.motivo}</div>
+      <div class="res-actions">
+        ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
+        <button class="btn btn-gold btn-sm" onclick="gerarScript50('${im.id}','b',\`${safeMsg}\`)">🤝 Script 50/50</button>
+        <button class="btn btn-outline btn-sm" onclick="gerarRapida('${im.id}',\`${safeMsg}\`)">💬 Resposta rápida</button>
+      </div>
+      <div id="s50b-${im.id}"></div>
+      <div id="rap-${im.id}"></div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+// ── SCRIPT 50/50 ──
+async function gerarScript50(id,origem,msgCliente){
+  const im=cache.find(i=>i.id===id); if(!im)return;
+  const divId=origem==='e'?`s50e-${id}`:`s50b-${id}`;
+  const div=document.getElementById(divId); if(!div)return;
+  div.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Gerando script 50/50...</div>';
+
+  const margem=im.avaliacao&&im.avaliacao>im.valor?im.avaliacao-im.valor:0;
+  const diferenciais=[];
+  if(margem) diferenciais.push(`Avaliação R$${im.avaliacao.toLocaleString('pt-BR')} vs Venda R$${im.valor.toLocaleString('pt-BR')} — margem de R$${margem.toLocaleString('pt-BR')}`);
+  if(im.gatilhos?.length) diferenciais.push(...im.gatilhos);
+  if(im.obs) diferenciais.push(im.obs);
+
+  const prompt=`Você é Estephaní, corretora da M&E Imóveis em Goiânia. Escreva um script de WhatsApp para outro CORRETOR propondo parceria 50/50.
+
+${msgCliente?`Mensagem que o corretor postou: "${msgCliente}"`:'Corretor tem cliente buscando imóvel na região.'}
+
+Imóvel:
+- ${im.nome} | ${im.tipo} | ${im.setor}${im.setoresProximos?' (próx.: '+im.setoresProximos+')':''}
+- ${im.quartos||0} quartos${im.suites?' / '+im.suites+' suíte(s)':''}${im.area?' / '+im.area+'m²':''}
+- Venda: R$ ${im.valor?.toLocaleString('pt-BR')||'consultar'}${im.avaliacao?' | Avaliação: R$ '+im.avaliacao.toLocaleString('pt-BR'):''}
+${margem?'- MARGEM DE ENTRADA: R$ '+margem.toLocaleString('pt-BR')+' (cliente entra com muito menos!)':''}
+- Financiamento: ${im.financiamento} | Permuta: ${im.permuta}
+- Diferenciais: ${diferenciais.join(' / ')||'—'}
+
+Use este modelo (adapte com dados reais):
+"Olá [nome], vi sua busca para [setor]. Tenho uma oportunidade na M&E Imóveis:
+
+🏠 [tipo] — [setor]
+💰 Venda: R$ [valor] | Avaliação: R$ [avaliação]
+🚀 Diferencial: [principal diferencial]
+🤝 Parceria 50/50 garantida.
+
+Posso te enviar o book de fotos agora no privado?"
+
+Escreva apenas o script, direto, com emojis.`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    const texto=data.content?.map(c=>c.text||'').join('').trim();
+    div.innerHTML=`
+      <div style="margin-top:10px;font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">✉️ Script 50/50 — mande no privado do corretor</div>
+      <div class="wpp-output" id="txt50-${id}">${texto}</div>
+      <button class="btn btn-gold btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('txt50-${id}').textContent).then(()=>toast('📋 Script copiado!'))">📋 Copiar script</button>`;
+  }catch(e){div.innerHTML='<p style="color:var(--red);font-size:12px;padding-top:8px;">Erro ao gerar script.</p>';}
+}
+window.gerarScript50=gerarScript50;
+
+// ── RESPOSTA RÁPIDA ──
+async function gerarRapida(id,msgCliente){
+  const im=cache.find(i=>i.id===id); if(!im)return;
+  const div=document.getElementById('rap-'+id); if(!div)return;
+  div.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Gerando resposta...</div>';
+
+  const prompt=`Você é Estephaní da M&E Imóveis. Resposta CURTA (máx 3 linhas) para o grupo:
+Mensagem: "${msgCliente}"
+Imóvel: ${im.nome} | ${im.setor} | ${im.quartos||0}q | ${fmtCur(im.valor)} | Fin: ${im.financiamento}
+${im.gatilhos?.length?'Gatilhos: '+im.gatilhos.join(', '):''}
+Seja direta, emojis moderados. Diga que tem opção e convide pro privado.`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:250,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    const texto=data.content?.map(c=>c.text||'').join('').trim();
+    div.innerHTML=`
+      <div class="wpp-output" id="txtrap-${id}" style="margin-top:9px;">${texto}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('txtrap-${id}').textContent).then(()=>toast('📋 Copiado!'))">📋 Copiar</button>`;
+  }catch(e){div.innerHTML='<p style="color:var(--red);font-size:12px;padding-top:8px;">Erro.</p>';}
+}
+window.gerarRapida=gerarRapida;
+
+// ── COPIAR ANÚNCIO ──
+function copiarMsg(id){
+  const im=cache.find(i=>i.id===id);
+  if(!im?.msgDivulgacao)return;
+  navigator.clipboard.writeText(im.msgDivulgacao).then(()=>toast('📋 Anúncio copiado!'));
+}
+window.copiarMsg=copiarMsg;
+
+// ── PREENCHER COM IA ──
+async function preencherComIA(){
+  const texto=document.getElementById('paste-imovel').value.trim();
+  if(!texto){toast('⚠️ Cole um texto primeiro!');return;}
+  const status=document.getElementById('paste-status');
+  status.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Lendo anúncio...</div>';
+
+  const prompt=`Extraia dados de imóvel do texto abaixo. Responda SOMENTE JSON válido sem markdown.
+
+Texto: """${texto}"""
+
+{"nome":"título curto ex: Casa St. Maysa 3q","tipo":"Apartamento|Casa|Lote / Terreno|Chácara|Comercial|Kitnet / Studio|Sobrado","setor":"setor principal","setoresProximos":"outros separados por vírgula","quartos":0,"suites":0,"area":0,"valor":0,"avaliacao":0,"financiamento":"sim|nao|parcial","permuta":"sim|nao|parcial","gatilhos":["MCMV"],"obs":"diferenciais"}
+
+Gatilhos possíveis: MCMV, Alto Padrão, Entrada Zero, Avaliação Alta, Aceita FGTS, Aceita Permuta, Pronto para Morar, Doc Grátis, Lançamento, Oportunidade, Baixo Condomínio, Perto de Escola.
+valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGTS. "Avaliação Alta" se avaliacao>valor. "Entrada Zero" se (avaliacao-valor)/avaliacao>=0.8.`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content?.map(c=>c.text||'').join('').trim();
+    let info; try{info=JSON.parse(raw);}catch{const m=raw.match(/\{[\s\S]*\}/);info=m?JSON.parse(m[0]):null;}
+    if(!info) throw new Error('Não consegui interpretar');
+
+    if(info.nome) document.getElementById('f-nome').value=info.nome;
+    if(info.setor) document.getElementById('f-setor').value=info.setor;
+    if(info.setoresProximos) document.getElementById('f-proximos').value=info.setoresProximos;
+    if(info.area) document.getElementById('f-area').value=info.area;
+    if(info.valor) document.getElementById('f-valor').value=info.valor;
+    if(info.avaliacao) document.getElementById('f-avaliacao').value=info.avaliacao;
+    if(info.obs) document.getElementById('f-obs').value=info.obs;
+    document.getElementById('f-msg').value=texto;
+
+    if(info.tipo){const sel=document.getElementById('f-tipo');for(let o of sel.options){if(o.value===info.tipo||o.text===info.tipo){sel.value=o.value;break;}}}
+    if(info.quartos!=null) document.getElementById('f-quartos').value=Math.min(info.quartos,5);
+    if(info.suites!=null) document.getElementById('f-suites').value=Math.min(info.suites,4);
+    if(info.financiamento) document.getElementById('f-financiamento').value=info.financiamento;
+    if(info.permuta) document.getElementById('f-permuta').value=info.permuta;
+
+    if(info.gatilhos?.length){
+      document.querySelectorAll('#gatilhos-container .tag-chip').forEach(chip=>{
+        if(info.gatilhos.some(g=>chip.dataset.val?.toLowerCase()===g.toLowerCase())) chip.classList.add('selected');
+      });
+    }
+    calcularMargem();
+    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:9px;font-size:13px;color:var(--green);">✅ Formulário preenchido! Confira os dados e clique em <strong>Salvar Imóvel</strong>.</div>`;
+    setTimeout(()=>document.getElementById('f-nome').scrollIntoView({behavior:'smooth',block:'center'}),300);
+  }catch(e){
+    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);border-radius:9px;font-size:13px;color:var(--red);">❌ ${e.message}. Preencha manualmente.</div>`;
+  }
+}
+window.preencherComIA=preencherComIA;
+
+// ── PROCESSAR EM LOTE ──
+async function processarLote(){
+  const raw=document.getElementById('lote-input').value.trim();
+  if(!raw){toast('⚠️ Cole as mensagens primeiro!');return;}
+
+  if(!cache.length) await carregarImoveis();
+
+  const status=document.getElementById('lote-status');
+  const container=document.getElementById('lote-resultados');
+  container.innerHTML='';
+
+  // Separa mensagens por linha em branco
+  const msgs=raw.split(/\n\s*\n/).map(m=>m.trim()).filter(m=>m.length>8);
+  if(!msgs.length){toast('⚠️ Nenhuma mensagem detectada. Separe por linha em branco.');return;}
+
+  status.innerHTML=`<div class="loading"><div class="spinner"></div> Analisando ${msgs.length} mensagem(ns)...</div>`;
+
+  const listaImoveis=cache.map((im,i)=>({
+    indice:i,nome:im.nome,tipo:im.tipo,setor:im.setor,
+    setoresProximos:im.setoresProximos||'',
+    quartos:im.quartos,area:im.area,valor:im.valor,avaliacao:im.avaliacao||0,
+    financiamento:im.financiamento,permuta:im.permuta,
+    gatilhos:im.gatilhos||[],obs:im.obs||''
+  }));
+
+  const prompt=`Você é assistente da M&E Imóveis em Goiânia.
+
+Recebi ${msgs.length} mensagem(ns) de grupos de corretores. Para cada uma:
+1. Identifique se é uma BUSCA de imóvel (ignore mensagens que não são buscas: elogios, fotos, áudio, conteúdo aleatório)
+2. Se for busca, encontre os imóveis compatíveis do banco abaixo
+
+Mensagens:
+${msgs.map((m,i)=>`[${i+1}] "${m}"`).join('\n\n')}
+
+Imóveis disponíveis:
+${JSON.stringify(listaImoveis,null,2)}
+
+Responda SOMENTE JSON sem markdown:
+{
+  "analise": [
+    {
+      "num": 1,
+      "e_busca": true,
+      "resumo": "cliente busca X em Y até R$ Z",
+      "resultados": [
+        {"indice": 0, "score": 88, "motivo": "por que combina"}
+      ]
+    },
+    {
+      "num": 2,
+      "e_busca": false,
+      "resumo": "não é busca de imóvel"
+    }
+  ]
+}
+Score >= 40 apenas. Máximo 3 resultados por mensagem. Mais relevante primeiro.`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw2=data.content?.map(c=>c.text||'').join('');
+    let res; try{res=JSON.parse(raw2.trim());}catch{const m=raw2.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
+    if(!res?.analise) throw new Error('Resposta inválida');
+
+    const buscas=res.analise.filter(a=>a.e_busca&&a.resultados?.length);
+    const nao=res.analise.filter(a=>!a.e_busca);
+
+    status.innerHTML=`
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="padding:10px 16px;background:rgba(76,175,130,.12);border:1px solid rgba(76,175,130,.3);border-radius:10px;font-size:13px;color:var(--green);">
+          ✅ <strong>${buscas.length}</strong> busca(s) com match
+        </div>
+        <div style="padding:10px 16px;background:var(--navy-mid);border:1px solid var(--navy-border);border-radius:10px;font-size:13px;color:var(--text-dim);">
+          ⏭️ <strong>${nao.length}</strong> mensagem(ns) ignorada(s) — não eram buscas
+        </div>
+      </div>`;
+
+    if(!buscas.length){
+      container.innerHTML='<div class="empty"><div class="emoji">🤷</div><p>Nenhuma das mensagens era uma busca de imóvel compatível.</p></div>';
+      return;
+    }
+
+    container.innerHTML=buscas.map((a,ai)=>{
+      const msgOriginal=msgs[a.num-1]||'';
+      const safeMsg=msgOriginal.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+      const resHtml=a.resultados.map(r=>{
+        const im=cache[r.indice]; if(!im)return'';
+        const margem=im.avaliacao&&im.avaliacao>im.valor?im.avaliacao-im.valor:0;
+        return `<div style="background:var(--navy);border:1px solid var(--navy-border);border-radius:10px;padding:13px;margin-top:9px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-weight:700;font-size:13px;color:var(--cream);">${im.nome}</div>
+            <span class="score-badge">⭐ ${r.score}%</span>
+          </div>
+          <div class="tags-row">
+            <span class="tag">${im.tipo}</span>
+            <span class="tag">📍 ${im.setor}</span>
+            ${im.quartos?`<span class="tag">${im.quartos}q</span>`:''}
+            ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
+            ${margem?`<span class="tag margem">📈 +${fmtCur(margem)}</span>`:''}
+          </div>
+          <div style="font-size:15px;font-weight:700;color:var(--gold);margin-top:4px;">${fmtCur(im.valor)}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">💡 ${r.motivo}</div>
+          <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">
+            ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Anúncio</button>`:''}
+            <button class="btn btn-gold btn-sm" onclick="gerarScript50('${im.id}','lb${ai}',\`${safeMsg}\`)">🤝 Script 50/50</button>
+          </div>
+          <div id="s50lb${ai}-${im.id}"></div>
+        </div>`;
+      }).join('');
+
+      return `<div class="res-card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;">MSG ${a.num}</div>
+          <div style="font-size:13px;color:var(--text-dim);">${a.resumo}</div>
+        </div>
+        <div style="background:var(--navy);border-left:2px solid var(--navy-border);border-radius:4px;padding:10px 13px;font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:4px;">"${msgs[a.num-1]}"</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:2px;">${a.resultados.length} imóvel(is) compatível(is)</div>
+        ${resHtml}
+      </div>`;
+    }).join('');
+
+  }catch(e){
+    status.innerHTML='';
+    container.innerHTML=`<div class="empty"><div class="emoji">❌</div><p>Erro: ${e.message}</p></div>`;
+  }
+}
+window.processarLote=processarLote;
+
+// patch gerarScript50 to support lote div ids
+const _orig50=gerarScript50;
+window.gerarScript50=async function(id,origem,msgCliente){
+  // lote mode: origem starts with 'lb'
+  if(typeof origem==='string'&&origem.startsWith('lb')){
+    const im=cache.find(i=>i.id===id); if(!im)return;
+    const divId=`s50${origem}-${id}`;
+    const div=document.getElementById(divId); if(!div)return;
+    div.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Gerando script 50/50...</div>';
+    const margem=im.avaliacao&&im.avaliacao>im.valor?im.avaliacao-im.valor:0;
+    const prompt=`Você é Estephaní da M&E Imóveis. Script WhatsApp para CORRETOR propondo parceria 50/50.
+${msgCliente?`Mensagem do corretor: "${msgCliente}"`:''}
+Imóvel: ${im.nome} | ${im.setor} | ${im.quartos||0}q | Venda ${fmtCur(im.valor)}${im.avaliacao?' | Aval. '+fmtCur(im.avaliacao):''}
+${margem?'Margem: '+fmtCur(margem)+' (cliente entra com menos!)':''}
+Gatilhos: ${(im.gatilhos||[]).join(', ')||'—'}
+Modelo: "Olá [nome], vi sua busca para [setor]. M&E Imóveis:\\n🏠 [tipo]\\n💰 Venda R$X | Avaliação R$Y\\n🚀 [diferencial]\\n🤝 Parceria 50/50.\\nPosso enviar book de fotos?"
+Apenas o script, emojis, direto.`;
+    try{
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+      const d=await r.json(); const t=d.content?.map(c=>c.text||'').join('').trim();
+      div.innerHTML=`<div class="wpp-output" id="txl-${id}" style="margin-top:8px;">${t}</div><button class="btn btn-gold btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('txl-${id}').textContent).then(()=>toast('📋 Copiado!'))">📋 Copiar</button>`;
+    }catch{div.innerHTML='<p style="color:var(--red);font-size:12px;padding-top:6px;">Erro.</p>';}
+    return;
+  }
+  return _orig50(id,origem,msgCliente);
+};
+</script>
+</body>
+</html>
