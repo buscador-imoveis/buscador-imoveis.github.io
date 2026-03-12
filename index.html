@@ -162,13 +162,61 @@ textarea { resize:vertical; min-height:75px; }
 .setor-label.ativo { fill:#fff; font-size:8px; font-weight:600; }
 #mapa-tooltip { position:fixed; background:var(--navy-soft); border:1px solid var(--gold-dim); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--text); pointer-events:none; z-index:999; display:none; max-width:200px; line-height:1.5; }
 
-@media(max-width:600px) {
+/* ── BOTTOM NAV MOBILE ── */
+#bottom-nav {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0; z-index:300;
+  background:rgba(13,27,42,.97); backdrop-filter:blur(16px);
+  border-top:1px solid var(--navy-border);
+  padding:6px 0 env(safe-area-inset-bottom,6px);
+}
+body.light #bottom-nav { background:rgba(240,237,232,.97); }
+#bottom-nav .bnav-scroll {
+  display:flex; overflow-x:auto; gap:0;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  padding:0 4px;
+}
+#bottom-nav .bnav-scroll::-webkit-scrollbar { display:none; }
+.bnav-btn {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px; padding:5px 10px; min-width:56px; flex-shrink:0;
+  background:none; border:none; color:var(--text-dim);
+  font-family:'DM Sans',sans-serif; font-size:9px; font-weight:500;
+  cursor:pointer; border-radius:10px; transition:all .15s;
+}
+.bnav-btn .bnav-icon { font-size:18px; line-height:1; }
+.bnav-btn.active { color:var(--gold); }
+.bnav-btn.active .bnav-icon { transform:scale(1.15); }
+
+/* INSTALL BANNER mobile */
+#install-banner {
+  display:none; position:fixed; bottom:70px; left:12px; right:12px; z-index:400;
+  background:var(--navy-mid); border:1px solid var(--gold);
+  border-radius:14px; padding:14px 16px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+#install-banner-close {
+  position:absolute; top:8px; right:12px;
+  background:none; border:none; color:var(--text-dim); font-size:18px; cursor:pointer;
+}
+
+@media(max-width:680px) {
   .form-grid { grid-template-columns:1fr; }
   .stats-row { grid-template-columns:1fr 1fr; }
-  header { flex-wrap:wrap; height:auto; padding:10px 12px; gap:8px; }
-  .tabs { width:100%; justify-content:center; }
-  .tab { padding:5px 9px; font-size:11px; }
-  .logo small { display:none; }
+  /* hide desktop header tabs, show bottom nav */
+  header { height:54px; padding:0 14px; }
+  header .tabs { display:none; }
+  header .logo small { display:none; }
+  main { padding:18px 12px 80px; }
+  #bottom-nav { display:block; }
+  /* hide desktop install btn */
+  #install-btn { display:none !important; }
+  .dash-grid { grid-template-columns:1fr 1fr; }
+  /* tighter cards on mobile */
+  .card { padding:16px; }
+  .res-card { padding:13px; }
 }
 
 /* VООZ */
@@ -229,12 +277,36 @@ body.light body::before { display:none; }
     <button class="tab" onclick="switchTab('entrada',this)">💚 Entrada Fácil</button>
     <button class="tab" onclick="switchTab('historico',this)">🕐 Histórico</button>
     <button class="tab" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('crm',this)">🤝 CRM</button>
   </div>
   <div style="display:flex;gap:7px;align-items:center;flex-shrink:0;">
     <button id="install-btn" onclick="instalarPWA()">📲 Instalar App</button>
     <button class="theme-btn" onclick="toggleTheme()" title="Alternar tema">🌙</button>
   </div>
 </header>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav id="bottom-nav">
+  <div class="bnav-scroll">
+    <button class="bnav-btn active" data-tab="buscar"   onclick="switchTabMobile('buscar',this)"><span class="bnav-icon">🔍</span>Buscar</button>
+    <button class="bnav-btn"        data-tab="meus"     onclick="switchTabMobile('meus',this)"><span class="bnav-icon">🏠</span>Carteira</button>
+    <button class="bnav-btn"        data-tab="cadastrar" onclick="switchTabMobile('cadastrar',this)"><span class="bnav-icon">➕</span>Cadastrar</button>
+    <button class="bnav-btn"        data-tab="entrada"  onclick="switchTabMobile('entrada',this)"><span class="bnav-icon">💚</span>Entrada</button>
+    <button class="bnav-btn"        data-tab="crm"      onclick="switchTabMobile('crm',this)"><span class="bnav-icon">🤝</span>CRM</button>
+    <button class="bnav-btn"        data-tab="lote"     onclick="switchTabMobile('lote',this)"><span class="bnav-icon">📦</span>Em Lote</button>
+    <button class="bnav-btn"        data-tab="importar" onclick="switchTabMobile('importar',this)"><span class="bnav-icon">📥</span>Importar</button>
+    <button class="bnav-btn"        data-tab="historico" onclick="switchTabMobile('historico',this)"><span class="bnav-icon">🕐</span>Histórico</button>
+    <button class="bnav-btn"        data-tab="dashboard" onclick="switchTabMobile('dashboard',this)"><span class="bnav-icon">📊</span>Dashboard</button>
+  </div>
+</nav>
+
+<!-- INSTALL BANNER (mobile, iOS + Android) -->
+<div id="install-banner">
+  <button id="install-banner-close" onclick="fecharInstallBanner()">✕</button>
+  <div style="font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-bottom:6px;">📲 Instalar M&E Imóveis</div>
+  <div id="install-banner-msg" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:10px;"></div>
+  <button id="install-banner-btn" class="btn btn-gold btn-full" onclick="instalarPWA()" style="display:none;">⬇️ Instalar agora</button>
+</div>
 
 <main>
 
@@ -332,8 +404,7 @@ body.light body::before { display:none; }
       <div class="form-group full">
         <label>📊 Avaliação Bancária (R$) — deixe 0 se não souber</label>
         <input type="number" id="f-avaliacao" placeholder="Ex: 340000" oninput="calcularMargem()">
-        <div class="margem-box" id="margem-box">
-          📈 Margem de entrada: <strong id="margem-valor"></strong> — cliente precisa de menos entrada!
+        <div class="margem-box" id="margem-box" style="line-height:1.7;">
         </div>
       </div>
       <div class="form-group">
@@ -368,6 +439,14 @@ body.light body::before { display:none; }
       <div class="form-group full">
         <label>Diferenciais / Observações</label>
         <textarea id="f-obs" placeholder="Ex: 2 vagas, churrasqueira, piscina, condomínio fechado, portão eletrônico..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>👤 Nome do Proprietário / Captador</label>
+        <input type="text" id="f-contato-nome" placeholder="Ex: João Silva">
+      </div>
+      <div class="form-group">
+        <label>📱 Telefone (WhatsApp)</label>
+        <input type="tel" id="f-contato-tel" placeholder="Ex: 62999990000">
       </div>
       <div class="form-group full">
         <label>Mensagem de divulgação (WhatsApp / ZAP)</label>
@@ -446,6 +525,15 @@ Procuro lote no Jardim América ou região, até 80k. Tem alguém?"></textarea>
       <span class="filtro-chip" data-fv="300-600" onclick="setFiltroValor(this)">R$ 300k–600k</span>
       <span class="filtro-chip" data-fv="600+" onclick="setFiltroValor(this)">R$ 600k+</span>
     </div>
+    <div style="margin-top:8px;">
+      <label style="font-size:10px;font-weight:700;color:var(--gold-dim);letter-spacing:1.1px;text-transform:uppercase;display:block;margin-bottom:5px;">📍 Filtrar por Setor</label>
+      <div style="display:flex;gap:7px;align-items:center;">
+        <select id="filtro-setor" onchange="setFiltroSetor()" style="background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:8px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;cursor:pointer;">
+          <option value="">Todos os setores</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="limparFiltroSetor()" id="btn-limpar-setor" style="display:none;">✕ Limpar</button>
+      </div>
+    </div>
   </div>
   <div style="margin-bottom:12px;">
     <button class="btn btn-outline btn-full" onclick="abrirPlanilhaRapida()" style="border-color:var(--gold-dim);color:var(--gold);">📥 Importar Planilha Rápida</button>
@@ -518,6 +606,90 @@ Moinho dos Ventos, 220000, 280000"></textarea>
     <div class="card-title">🏷️ Gatilhos mais usados</div>
     <div id="dash-gatilhos"></div>
   </div>
+  <div class="card">
+    <div class="card-title">🤝 Funil de Conversão (CRM)</div>
+    <div id="dash-funil"></div>
+  </div>
+</div>
+
+<!-- ══════ CRM — PARCERIAS ══════ -->
+<div class="section" id="tab-crm">
+  <!-- FUNIL DE CONVERSÃO -->
+  <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-box" style="border-color:rgba(201,168,76,.4);">
+      <div class="stat-num" id="crm-enviadas" style="color:var(--gold);">0</div>
+      <div class="stat-label">Propostas Enviadas</div>
+    </div>
+    <div class="stat-box" style="border-color:rgba(100,160,255,.4);">
+      <div class="stat-num" id="crm-negociando" style="color:#6EB5FF;">0</div>
+      <div class="stat-label">Negociando</div>
+    </div>
+    <div class="stat-box" style="border-color:rgba(76,175,130,.4);">
+      <div class="stat-num" id="crm-fechados" style="color:var(--green);">0</div>
+      <div class="stat-label">Fechados 🎉</div>
+    </div>
+    <div class="stat-box" style="border-color:rgba(224,85,85,.3);">
+      <div class="stat-num" id="crm-perdidos" style="color:var(--red);">0</div>
+      <div class="stat-label">Não Fechados</div>
+    </div>
+  </div>
+  <!-- NOVA PARCERIA MANUAL -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">➕ Registrar Parceria</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Corretor Parceiro</label>
+        <input type="text" id="crm-f-corretor" placeholder="Nome do corretor">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="tel" id="crm-f-tel" placeholder="62999990000">
+      </div>
+      <div class="form-group">
+        <label>Imóvel</label>
+        <select id="crm-f-imovel"><option value="">Selecione...</option></select>
+      </div>
+      <div class="form-group">
+        <label>Canal</label>
+        <select id="crm-f-canal">
+          <option value="WhatsApp Grupo">WhatsApp Grupo</option>
+          <option value="Instagram">Instagram</option>
+          <option value="WhatsApp Direto">WhatsApp Direto</option>
+          <option value="Indicação">Indicação</option>
+          <option value="Portal ZAP/OLX">Portal ZAP/OLX</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Observação</label>
+        <input type="text" id="crm-f-obs" placeholder="Ex: Cliente quer visitar no fim de semana">
+      </div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:14px;justify-content:flex-end;">
+      <button class="btn btn-gold" onclick="crmRegistrar()">💾 Registrar</button>
+    </div>
+  </div>
+  <!-- BUSCAS SALVAS (alertas de match) -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">🔔 Alertas de Match — Buscas Salvas</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">Salve buscas recorrentes. Quando você cadastrar um imóvel novo que combina, o sistema avisa aqui.</p>
+    <div style="display:flex;gap:9px;margin-bottom:12px;">
+      <input id="alerta-input" style="flex:1;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 13px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;outline:none;" placeholder="Ex: Casa Marista 3q MCMV até 380k">
+      <button class="btn btn-gold btn-sm" onclick="salvarAlerta()">+ Salvar</button>
+    </div>
+    <div id="alertas-lista"></div>
+  </div>
+  <!-- LISTA DE PARCERIAS -->
+  <div class="card">
+    <div class="card-title">📋 Histórico de Parcerias</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;" id="crm-filtros">
+      <span class="filtro-chip ativo" data-cf="todos" onclick="setCrmFiltro(this)">Todos</span>
+      <span class="filtro-chip" data-cf="Enviada" onclick="setCrmFiltro(this)" style="--chip-cor:#C9A84C;">📤 Enviadas</span>
+      <span class="filtro-chip" data-cf="Negociando" onclick="setCrmFiltro(this)">🔄 Negociando</span>
+      <span class="filtro-chip" data-cf="Fechado" onclick="setCrmFiltro(this)">✅ Fechados</span>
+      <span class="filtro-chip" data-cf="Perdido" onclick="setCrmFiltro(this)">❌ Perdidos</span>
+    </div>
+    <div id="crm-lista"><div class="empty"><div class="emoji">🤝</div><p>Nenhuma parceria registrada ainda.</p></div></div>
+  </div>
 </div>
 
 </main>
@@ -548,6 +720,7 @@ function switchTab(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='meus'||tab==='entrada') carregarImoveis();
+  if(tab==='crm'){ renderCrm(); renderCrmStats(); renderAlertas(); popularCrmSelect(); }
 }
 window.switchTab=switchTab;
 
@@ -570,24 +743,57 @@ function calcularMargem(){
   const val=parseFloat(document.getElementById('f-valor').value)||0;
   const aval=parseFloat(document.getElementById('f-avaliacao').value)||0;
   const box=document.getElementById('margem-box');
-  if(aval>val&&val>0){
-    document.getElementById('margem-val').textContent=fmtCur(aval-val);
+  if(aval>0&&val>0){
+    // Banco financia até 80% da avaliação
+    const financiado = aval * 0.80;
+    const entrada = Math.max(val - financiado, 0);
+    const margemBruta = aval - val; // avaliação minus venda
+    const entradaZeroFlag = entrada <= 0;
+    const pctEntrada = val > 0 ? Math.round((entrada/val)*100) : 0;
+    const boxEl = document.getElementById('margem-box');
+
+    let html = '';
+    if(entradaZeroFlag || entrada < val * 0.05){
+      html = `🚀 <strong>ENTRADA ZERO!</strong> O banco financia ${fmtCur(financiado)} (80% de ${fmtCur(aval)}) — cobre o valor total de venda!`;
+    } else {
+      html = `📊 Avaliação: <strong>${fmtCur(aval)}</strong> → Banco financia <strong>${fmtCur(financiado)}</strong> (80%)<br>
+💰 Venda: <strong>${fmtCur(val)}</strong> → Cliente precisa de entrada: <strong style="color:#E8C97A;">${fmtCur(entrada)}</strong> (${pctEntrada}% do valor)`;
+    }
+    if(margemBruta>0) html += `<br>📈 Margem de avaliação: <strong>${fmtCur(margemBruta)}</strong> acima do preço de venda`;
+
+    boxEl.innerHTML = html;
     box.style.display='block';
+
     // auto-gatilhos
     document.querySelectorAll('#gatilhos-container .tag-chip').forEach(c=>{
-      if(c.dataset.val==='Avaliação Alta') c.classList.add('selected');
-      if(c.dataset.val==='Entrada Zero'&&(aval-val)/aval>=0.8) c.classList.add('selected');
+      if(c.dataset.val==='Avaliação Alta'&&aval>val) c.classList.add('selected');
+      if(c.dataset.val==='Entrada Zero'&&entradaZeroFlag) c.classList.add('selected');
     });
   } else { box.style.display='none'; }
 }
 window.calcularMargem=calcularMargem;
 
+// ── HELPER CENTRAL: Cálculo de Entrada ──
+// Fórmula: Banco financia 80% da avaliação → Entrada = Venda − Financiado
+function calcEntrada(im){
+  const aval = im.avaliacao || 0;
+  const val  = im.valor     || 0;
+  if(!aval || !val) return { financiado:0, entrada:0, entradaZero:false, pctEntrada:0, margemBruta:0, pctMargem:0 };
+  const financiado   = aval * 0.80;
+  const entrada      = Math.max(val - financiado, 0);
+  const entradaZero  = entrada <= 0;
+  const pctEntrada   = val > 0 ? Math.round((entrada / val) * 100) : 0;
+  const margemBruta  = aval - val;            // avaliação − venda
+  const pctMargem    = aval > 0 ? Math.round((margemBruta / aval) * 100) : 0;
+  return { financiado, entrada, entradaZero, pctEntrada, margemBruta, pctMargem };
+}
+window.calcEntrada = calcEntrada;
+
 // ── FÁBRICA DE COPY ──
 function gerarCopyWhatsapp(im){
-  const margem = im.avaliacao && im.avaliacao > im.valor ? im.avaliacao - im.valor : 0;
-  const pct = margem ? Math.round((margem/im.avaliacao)*100) : 0;
-  const xequeMate = margem ? `🎯 *Xeque-mate:* Avaliação ${fmtCur(im.avaliacao)} vs Venda ${fmtCur(im.valor)} — margem de *${fmtCur(margem)}* (${pct}% a menos!)` : '';
-  const entradaZero = margem && pct >= 20 ? '🚀 *ENTRADA ZERO* — o banco cobre tudo!' : '';
+  const e = calcEntrada(im);
+  const xequeMate = im.avaliacao ? `🎯 *Xeque-mate:* Aval. ${fmtCur(im.avaliacao)} × 80% = ${fmtCur(e.financiado)} — cliente entra com *${e.entradaZero?'R$ 0 (ZERO!)':fmtCur(e.entrada)}*` : '';
+  const entradaTag = e.entradaZero ? '🚀 *ENTRADA ZERO* — banco financia o valor total!' : (e.entrada>0 && e.pctEntrada<15 ? `💸 Entrada baixíssima: *${fmtCur(e.entrada)}* (${e.pctEntrada}% do valor)` : '');
   const setor = im.setor || 'Goiânia';
   const quartos = im.quartos ? `${im.quartos} quartos` : '';
   const financ = im.financiamento === 'sim' ? '✅ Aceita financiamento/FGTS' : '';
@@ -596,7 +802,7 @@ function gerarCopyWhatsapp(im){
     `📍 ${setor}${quartos ? ' · ' + quartos : ''}${im.area ? ' · ' + im.area + 'm²' : ''}`,
     `💰 *${fmtCur(im.valor)}*`,
     xequeMate,
-    entradaZero,
+    entradaTag,
     financ,
     (im.gatilhos||[]).length ? '🏷️ ' + im.gatilhos.join(' · ') : '',
     im.obs ? `✨ ${im.obs}` : '',
@@ -615,6 +821,8 @@ async function salvarImovel(){
   if(!nome||!tipo||!setor){toast('⚠️ Preencha nome, tipo e setor!');return;}
   const imovel={
     nome,tipo,setor,
+    contatoNome:document.getElementById('f-contato-nome')?.value.trim()||'',
+    contatoTel:document.getElementById('f-contato-tel')?.value.trim().replace(/\D/g,'')||'',
     setoresProximos:document.getElementById('f-proximos').value.trim(),
     quartos:parseInt(document.getElementById('f-quartos').value)||0,
     suites:parseInt(document.getElementById('f-suites').value)||0,
@@ -631,7 +839,7 @@ async function salvarImovel(){
   imovel.copy_whatsapp = gerarCopyWhatsapp(imovel);
   try{
     await window._add(window._col(window._db,'buscador_imoveis'),imovel);
-    toast('✅ Imóvel salvo!');
+    toast('✅ Imóvel salvo!'); setTimeout(verificarAlertas, 1500);
     limparForm();
     document.querySelectorAll('.tab')[2].click();
   }catch(e){console.error(e);toast('❌ Erro ao salvar.');}
@@ -639,7 +847,7 @@ async function salvarImovel(){
 window.salvarImovel=salvarImovel;
 
 function limparForm(){
-  ['f-nome','f-setor','f-proximos','f-area','f-valor','f-avaliacao','f-obs','f-msg'].forEach(id=>{
+  ['f-nome','f-setor','f-proximos','f-area','f-valor','f-avaliacao','f-obs','f-msg','f-contato-nome','f-contato-tel'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   ['f-tipo','f-quartos','f-suites','f-financiamento','f-permuta'].forEach(id=>{
@@ -659,7 +867,7 @@ async function carregarImoveis(){
     const snap=await window._get(window._col(window._db,'buscador_imoveis'));
     cache=[];
     snap.forEach(d=>cache.push({id:d.id,...d.data()}));
-    renderLista(); renderEntrada(); atualizarStats();
+    renderLista(); renderEntrada(); atualizarStats(); popularFiltroSetor();
   }catch(e){
     ['lista-imoveis','lista-entrada'].forEach(id=>{
       const el=document.getElementById(id);
@@ -701,8 +909,7 @@ function renderEntrada(){
     el.innerHTML='<div class="empty"><div class="emoji">💚</div><p>Nenhum imóvel com avaliação acima do valor.<br>Cadastre imóveis com o campo <strong>Avaliação Bancária</strong> preenchido.</p></div>';return;
   }
   el.innerHTML=lista.map(im=>{
-    const margem=im.avaliacao-im.valor;
-    const pct=Math.round((margem/im.avaliacao)*100);
+    const e=calcEntrada(im);
     return `<div class="entrada-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div>
@@ -710,14 +917,15 @@ function renderEntrada(){
           <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">${im.tipo} · ${im.setor}${im.quartos?` · ${im.quartos}q`:''}</div>
         </div>
         <div style="text-align:right">
-          <div class="entrada-label">margem de entrada</div>
-          <div class="entrada-destaque">${fmtCur(margem)}</div>
-          <div style="font-size:11px;color:rgba(76,175,130,.6);">${pct}% a menos que o valor</div>
+          <div class="entrada-label">${e.entradaZero?'🚀 ENTRADA ZERO':'cliente precisa de'}</div>
+          <div class="entrada-destaque" style="${e.entradaZero?'color:var(--green)':'color:#E8C97A'}">${e.entradaZero?'R$ 0':''+fmtCur(e.entrada)}</div>
+          <div style="font-size:11px;color:rgba(76,175,130,.6);">${e.entradaZero?'banco cobre o valor total':e.pctEntrada+'% do valor de venda'}</div>
         </div>
       </div>
-      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:11px;">
-        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Venda</div><div style="font-size:16px;font-weight:700;color:var(--gold);">${fmtCur(im.valor)}</div></div>
-        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Avaliação</div><div style="font-size:16px;font-weight:700;color:var(--green);">${fmtCur(im.avaliacao)}</div></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:11px;">
+        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Avaliação</div><div style="font-size:15px;font-weight:700;color:var(--green);">${fmtCur(im.avaliacao)}</div></div>
+        <div><div style="font-size:10px;color:var(--gold-dim);text-transform:uppercase;letter-spacing:1px;">× 80% = Banco</div><div style="font-size:15px;font-weight:700;color:var(--gold);">${fmtCur(e.financiado)}</div></div>
+        <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Venda</div><div style="font-size:15px;font-weight:700;color:var(--cream);">${fmtCur(im.valor)}</div></div>
       </div>
       <div class="tags-row">
         ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
@@ -744,7 +952,7 @@ async function deletar(id){
   try{
     await window._del(window._doc(window._db,'buscador_imoveis',id));
     cache=cache.filter(i=>i.id!==id);
-    renderLista(); renderEntrada(); atualizarStats();
+    renderLista(); renderEntrada(); atualizarStats(); popularFiltroSetor();
     toast('🗑️ Removido');
   }catch(e){toast('❌ Erro ao remover');}
 }
@@ -763,7 +971,7 @@ async function buscarComIA(){
   const apenasMargemAlta = document.getElementById('filtro-margem-alta')?.checked;
   let fonteCache = cache;
   if(apenasMargemAlta){
-    fonteCache = cache.filter(im=>im.avaliacao && im.avaliacao > im.valor && (im.avaliacao-im.valor)/im.avaliacao >= 0.20);
+    fonteCache = cache.filter(im=>im.avaliacao && im.valor && calcEntrada(im).pctEntrada <= 15);
     if(!fonteCache.length){ container.innerHTML='<div class="empty"><div class="emoji">🚀</div><p>Nenhum imóvel com margem alta cadastrado. Desmarque o filtro ou cadastre imóveis com Avaliação Bancária maior que 20% acima do valor.</p></div>'; return; }
   }
   const lista=fonteCache.map((im,i)=>({
@@ -800,12 +1008,12 @@ ${JSON.stringify(lista,null,2)}
 Encontre os mais compatíveis. Considere setor E setoresProximos, tipo, valor, quartos, gatilhos.
 Se um imóvel estiver em setor VIZINHO ao buscado, adicione "Sugestão por Proximidade" nos pontos_match.${filtroMargemMsg}${vizinhancaCtx}
 Responda SOMENTE JSON sem markdown:
-{"interpretacao":"o que buscam em 1-2 frases","resultados":[{"indice":0,"score":92,"motivo":"por que atende","pontos_match":["setor próximo","3q","MCMV"]}]}
-Score >= 40 apenas. Máximo 5 resultados. Ordem decrescente de score.`;
+{"interpretacao":"o que buscam em 1-2 frases","contato_nome":"Nome do corretor se encontrado na mensagem ou null","contato_tel":"telefone com DDD somente dígitos ex 62999990000 ou null","resultados":[{"indice":0,"score":92,"motivo":"por que atende","pontos_match":["setor próximo","3q","MCMV"]}]}
+Score >= 40 apenas. Máximo 5 resultados. Ordem decrescente de score. Extraia contato_nome e contato_tel se aparecerem na mensagem.`;
 
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -823,13 +1031,52 @@ function renderResultados(res,msgOrig){
   if(!res.resultados.length){
     container.innerHTML='<div class="card"><div class="empty"><div class="emoji">🤷</div><p>Nenhum imóvel compatível.<br>Tente cadastrar mais imóveis.</p></div></div>';return;
   }
-  let html=`<div class="card" style="margin-bottom:14px;"><div class="card-title">🧠 Interpretação</div><p style="font-size:13px;color:var(--text);line-height:1.6;">${res.interpretacao}</p></div>
+
+  // Contato extraído pela IA
+  const contatoNome = res.contato_nome || null;
+  const contatoTel  = res.contato_tel  ? String(res.contato_tel).replace(/\D/g,'') : null;
+
+  // Cabeçalho com contato detectado
+  const contatoBanner = (contatoNome||contatoTel) ? `
+    <div style="background:rgba(76,175,130,.12);border:1px solid rgba(76,175,130,.35);border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="font-size:20px;">👤</div>
+      <div style="flex:1;">
+        <div style="font-size:11px;color:rgba(76,175,130,.7);text-transform:uppercase;letter-spacing:1px;">Corretor detectado</div>
+        <div style="font-size:15px;font-weight:700;color:var(--cream);">${contatoNome||'Corretor'}</div>
+        ${contatoTel?`<div style="font-size:12px;color:var(--text-dim);">📱 ${contatoTel.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3')}</div>`:''}
+      </div>
+      ${contatoTel?`<a href="https://wa.me/55${contatoTel}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">💬 Abrir WhatsApp</a>`:''}
+    </div>` : '';
+
+  let html=`<div class="card" style="margin-bottom:14px;">
+    <div class="card-title">🧠 Interpretação</div>
+    <p style="font-size:13px;color:var(--text);line-height:1.6;">${res.interpretacao}</p>
+  </div>
+  ${contatoBanner}
   <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">✅ ${res.resultados.length} imóvel(is) compatível(is)</div>`;
 
   res.resultados.forEach(r=>{
     const im=cache[r.indice]; if(!im)return;
+    const {entrada,entradaZero,financiado,pctEntrada}=calcEntrada(im);
     const margem=im.avaliacao&&im.avaliacao>im.valor?im.avaliacao-im.valor:0;
     const safeMsg=msgOrig.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+
+    // Monta script de parceria personalizado para enviar direto
+    const nomeCorretor = contatoNome || 'parceiro';
+    const scriptDireto = encodeURIComponent(
+      `Olá ${nomeCorretor}! Vi sua busca no grupo 👀\n\n` +
+      `Tenho um imóvel que pode atender seu cliente:\n\n` +
+      `🏠 *${im.nome}*\n` +
+      `📍 ${im.setor}${im.quartos?' · '+im.quartos+'q':''}${im.area?' · '+im.area+'m²':''}\n` +
+      `💰 *${fmtCur(im.valor)}*` +
+      (im.avaliacao?`\n📊 Avaliação: *${fmtCur(im.avaliacao)}*`:'') +
+      (entradaZero?'\n🚀 *ENTRADA ZERO* — banco financia o total!':(entrada>0?`\n🔑 Entrada: *${fmtCur(entrada)}*`:'')) +
+      (im.financiamento==='sim'?'\n✅ Aceita financiamento/FGTS':'') +
+      ((im.gatilhos||[]).length?'\n🏷️ '+im.gatilhos.join(' · '):'') +
+      '\n\n🤝 Parceria 50/50 garantida. Posso te enviar o book de fotos agora?'
+    );
+    const wppDireto = contatoTel ? `https://wa.me/55${contatoTel}?text=${scriptDireto}` : null;
+
     html+=`<div class="res-card">
       <div class="res-header">
         <div class="res-nome">${im.nome}</div>
@@ -838,20 +1085,21 @@ function renderResultados(res,msgOrig){
       <div class="tags-row">
         <span class="tag">${im.tipo}</span>
         <span class="tag">📍 ${im.setor}</span>
-        ${im.quartos?`<span class="tag">${im.quartos}q`+`</span>`:''}
+        ${im.quartos?`<span class="tag">${im.quartos}q</span>`:''}
         ${im.area?`<span class="tag">${im.area}m²</span>`:''}
         ${(r.pontos_match||[]).map(p=>`<span class="tag match">✓ ${p}</span>`).join('')}
         ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
         ${margem?`<span class="tag margem">📈 +${fmtCur(margem)}</span>`:''}
-        ${(margem&&(margem/im.avaliacao)>=0.20)?`<span class="tag" style="background:rgba(76,175,130,.25);color:var(--green);border:1px solid var(--green);font-weight:700;">🚀 ENTRADA ZERO</span>`:''}
+        ${entradaZero?'<span class="tag" style="background:rgba(76,175,130,.25);color:var(--green);border:1px solid var(--green);font-weight:700;">🚀 ENTRADA ZERO</span>':''}
       </div>
       <div class="res-preco">${fmtCur(im.valor)}</div>
-      ${im.avaliacao?`<div class="res-aval">Avaliação: ${fmtCur(im.avaliacao)}</div>`:''}
-      ${margem?`<div class="res-margem">💚 Margem de entrada: ${fmtCur(margem)} — cliente precisa de menos!</div>`:''}
+      ${im.avaliacao?`<div class="res-aval">Avaliação: ${fmtCur(im.avaliacao)} → Banco: ${fmtCur(financiado)} → Entrada: <strong style="color:#E8C97A;">${entradaZero?'R$ 0 🚀':fmtCur(entrada)}</strong></div>`:''}
       <div class="res-motivo">💡 ${r.motivo}</div>
       <div class="res-actions">
-        ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
-        <button class="btn btn-gold btn-sm" onclick="toggleScriptWpp('${im.id}')">📲 Copiar Script</button>
+        ${wppDireto?`<a href="${wppDireto}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">📲 Enviar para ${contatoNome||'corretor'}</a>`:''}
+        ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Anúncio</button>`:''}
+        <button class="btn btn-gold btn-sm" onclick="toggleScriptWpp('${im.id}')">✍️ Editar script</button>
+        <button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="crmRegistrarDaBusca('${im.id}','${nomeCorretor}','${contatoTel||''}','WhatsApp Grupo');toast('✅ Salvo no CRM!')">📋 Salvar no CRM</button>
         <button class="btn btn-gold btn-sm" onclick="gerarScript50('${im.id}','b',\`${safeMsg}\`)">🤝 Script 50/50</button>
         <button class="btn btn-outline btn-sm" onclick="gerarRapida('${im.id}',\`${safeMsg}\`)">💬 Resposta rápida</button>
       </div>
@@ -902,7 +1150,7 @@ Escreva apenas o script, direto, com emojis.`;
 
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -929,7 +1177,7 @@ Seja direta, emojis moderados. Diga que tem opção e convide pro privado.`;
 
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:250,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -981,7 +1229,7 @@ valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGT
 
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -1077,7 +1325,7 @@ Score >= 40 apenas. Máximo 3 resultados por mensagem. Mais relevante primeiro.`
 
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -1167,7 +1415,7 @@ Gatilhos: ${(im.gatilhos||[]).join(', ')||'—'}
 Modelo: "Olá [nome], vi sua busca para [setor]. M&E Imóveis:\\n🏠 [tipo]\\n💰 Venda R$X | Avaliação R$Y\\n🚀 [diferencial]\\n🤝 Parceria 50/50.\\nPosso enviar book de fotos?"
 Apenas o script, emojis, direto.`;
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
       const d=await r.json(); const t=d.content?.map(c=>c.text||'').join('').trim();
       div.innerHTML=`<div class="wpp-output" id="txl-${id}" style="margin-top:8px;">${t}</div><button class="btn btn-gold btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('txl-${id}').textContent).then(()=>toast('📋 Copiado!'))">📋 Copiar</button>`;
     }catch{div.innerHTML='<p style="color:var(--red);font-size:12px;padding-top:6px;">Erro.</p>';}
@@ -1341,7 +1589,7 @@ async function processarPlanilhaRapida(){
     if(!setor || !valor) continue;
     const gatilhos=[];
     if(avaliacao && avaliacao>valor){ gatilhos.push('Avaliação Alta'); }
-    if(avaliacao && valor && (avaliacao-valor)/avaliacao>=0.20){ gatilhos.push('Entrada Zero'); }
+    if(avaliacao && valor && (valor - avaliacao*0.80) <= 0){ gatilhos.push('Entrada Zero'); }
     const im = {
       nome:`Casa ${setor}`,
       tipo:'Casa', setor, setoresProximos:'',
@@ -1469,6 +1717,34 @@ window.limparHistorico = limparHistorico;
 // ══════════════════════════════════════
 let filtroTipoAtual = 'todos';
 let filtroValorAtual = 'todos';
+let filtroSetorAtual = '';
+
+function popularFiltroSetor(){
+  const sel = document.getElementById('filtro-setor'); if(!sel) return;
+  const setores = [...new Set(cache.map(i=>i.setor).filter(Boolean))].sort();
+  const valorAtual = sel.value;
+  sel.innerHTML = '<option value="">Todos os setores</option>' +
+    setores.map(s=>`<option value="${s}"${s===valorAtual?' selected':''}>${s}</option>`).join('');
+}
+
+function setFiltroSetor(){
+  const sel = document.getElementById('filtro-setor');
+  filtroSetorAtual = sel?.value || '';
+  const btn = document.getElementById('btn-limpar-setor');
+  if(btn) btn.style.display = filtroSetorAtual ? 'inline-flex' : 'none';
+  renderListaFiltrada();
+}
+window.setFiltroSetor = setFiltroSetor;
+
+function limparFiltroSetor(){
+  filtroSetorAtual = '';
+  const sel = document.getElementById('filtro-setor');
+  if(sel) sel.value = '';
+  const btn = document.getElementById('btn-limpar-setor');
+  if(btn) btn.style.display = 'none';
+  renderListaFiltrada();
+}
+window.limparFiltroSetor = limparFiltroSetor;
 
 function setFiltroTipo(el){
   document.querySelectorAll('#filtros-tipo .filtro-chip').forEach(c=>c.classList.remove('ativo'));
@@ -1497,6 +1773,8 @@ function renderListaFiltrada(){
   else if(filtroValorAtual === '300-600') lista = lista.filter(i=>i.valor>300000&&i.valor<=600000);
   else if(filtroValorAtual === '600+') lista = lista.filter(i=>i.valor>600000);
 
+  if(filtroSetorAtual) lista = lista.filter(i=>(i.setor||'')===filtroSetorAtual);
+
   if(busca) lista = lista.filter(i=>
     (i.nome||'').toLowerCase().includes(busca)||
     (i.setor||'').toLowerCase().includes(busca)||
@@ -1510,23 +1788,91 @@ function renderListaCustom(lista){
   const el = document.getElementById('lista-imoveis'); if(!el) return;
   if(!lista.length){ el.innerHTML='<div class="empty"><div class="emoji">🔍</div><p>Nenhum imóvel com esses filtros.</p></div>'; return; }
   el.innerHTML = lista.map(im=>{
-    const margem = im.avaliacao&&im.avaliacao>im.valor ? im.avaliacao-im.valor : 0;
-    return `<div class="imovel-item">
-      <div class="imovel-info">
-        <div class="imovel-nome">${im.nome}</div>
-        <div class="imovel-det">${im.tipo||'—'} · ${im.setor||'—'}${im.quartos?` · ${im.quartos}q`:''}${im.area?` · ${im.area}m²`:''}</div>
-        <div class="imovel-gtags">
-          ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho" style="font-size:10px;padding:2px 7px;">${g}</span>`).join('')}
-          ${margem?`<span class="tag margem" style="font-size:10px;padding:2px 7px;">📈 +${fmtCur(margem)}</span>`:''}
+    const {financiado,entrada,entradaZero,pctEntrada} = calcEntrada(im);
+    const margemBruta = im.avaliacao&&im.avaliacao>im.valor ? im.avaliacao-im.valor : 0;
+    return `<div class="imovel-item" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;" onclick="toggleDetalhe('${im.id}')">
+      <!-- LINHA PRINCIPAL -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;gap:10px;">
+        <div style="flex:1;min-width:0;">
+          <!-- SETOR em destaque -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+            <span style="background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;letter-spacing:.5px;white-space:nowrap;">📍 ${im.setor||'—'}</span>
+            ${im.tipo?`<span style="font-size:10px;color:var(--text-dim);background:var(--navy-border);padding:2px 7px;border-radius:10px;">${im.tipo}</span>`:''}
+            ${im.quartos?`<span style="font-size:10px;color:var(--text-dim);">${im.quartos}q${im.suites?' · '+im.suites+'s':''}</span>`:''}
+          </div>
+          <!-- NOME -->
+          <div style="font-weight:700;font-size:13px;color:var(--cream);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${im.nome}</div>
+          <!-- TAGS -->
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho" style="font-size:10px;padding:2px 7px;">${g}</span>`).join('')}
+            ${entradaZero?'<span class="tag" style="font-size:10px;padding:2px 7px;background:rgba(76,175,130,.25);color:var(--green);border:1px solid var(--green);font-weight:700;">🚀 ZERO</span>':(entrada>0?`<span class="tag" style="font-size:10px;padding:2px 7px;background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.3);">💰 ${fmtCur(entrada)}</span>`:'')}
+          </div>
+        </div>
+        <!-- PREÇOS + DELETE -->
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <div style="text-align:right;">
+            <div style="font-weight:700;color:var(--gold);font-size:14px;">${fmtCur(im.valor)}</div>
+            ${im.avaliacao?`<div style="font-size:10px;color:var(--text-dim);">aval. ${fmtCur(im.avaliacao)}</div>`:''}
+          </div>
+          <button class="btn btn-danger" style="flex-shrink:0;" onclick="event.stopPropagation();deletar('${im.id}')">🗑️</button>
         </div>
       </div>
-      <div class="imovel-right">
-        <div class="imovel-preco">${fmtCur(im.valor)}</div>
-        <button class="btn btn-danger" onclick="deletar('${im.id}')">🗑️</button>
+      <!-- PAINEL DE DETALHES (oculto, expande ao clicar) -->
+      <div id="det-${im.id}" style="display:none;border-top:1px solid var(--navy-border);background:var(--navy);padding:16px;animation:fadeUp .2s ease;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div style="background:var(--navy-soft);border-radius:9px;padding:10px;">
+            <div style="font-size:9px;color:var(--gold-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">💰 Venda</div>
+            <div style="font-size:18px;font-weight:700;color:var(--gold);">${fmtCur(im.valor)}</div>
+          </div>
+          <div style="background:var(--navy-soft);border-radius:9px;padding:10px;">
+            <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">📊 Avaliação</div>
+            <div style="font-size:18px;font-weight:700;color:var(--green);">${im.avaliacao?fmtCur(im.avaliacao):'—'}</div>
+          </div>
+          <div style="background:${entradaZero?'rgba(76,175,130,.15)':'rgba(201,168,76,.1)'};border:1px solid ${entradaZero?'rgba(76,175,130,.4)':'rgba(201,168,76,.3)'};border-radius:9px;padding:10px;">
+            <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">🏦 Banco financia (80%)</div>
+            <div style="font-size:16px;font-weight:700;color:var(--green);">${im.avaliacao?fmtCur(financiado):'—'}</div>
+          </div>
+          <div style="background:${entradaZero?'rgba(76,175,130,.2)':'rgba(201,168,76,.12)'};border:1px solid ${entradaZero?'var(--green)':'rgba(201,168,76,.4)'};border-radius:9px;padding:10px;">
+            <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">🔑 Entrada do cliente</div>
+            <div style="font-size:18px;font-weight:800;color:${entradaZero?'var(--green)':'#E8C97A'};">${entradaZero?'R$ 0 🚀':fmtCur(entrada)}</div>
+            ${!entradaZero&&im.avaliacao?`<div style="font-size:10px;color:var(--text-dim);">${pctEntrada}% do valor</div>`:''}
+          </div>
+        </div>
+        <!-- Detalhes extras -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-size:12px;color:var(--text-dim);">
+          ${im.area?`<span>📐 ${im.area}m²</span>`:''}
+          ${im.quartos?`<span>🛏️ ${im.quartos} quartos${im.suites?' / '+im.suites+' suíte(s)':''}</span>`:''}
+          ${im.financiamento&&im.financiamento!=='nao'?`<span style="color:var(--green);">✅ Financiamento ${im.financiamento==='parcial'?'(parcial)':''}</span>`:''}
+          ${im.permuta&&im.permuta!=='nao'?`<span style="color:var(--gold);">🔄 Permuta ${im.permuta==='parcial'?'(parcial)':''}</span>`:''}
+          ${im.setoresProximos?`<span>📍 Próx.: ${im.setoresProximos}</span>`:''}
+          ${im.contatoNome?`<span style="color:var(--gold);">👤 ${im.contatoNome}${im.contatoTel?' — <a href="https://wa.me/55'+im.contatoTel+'" target="_blank" style="color:var(--green);">📱 WhatsApp</a>':''}</span>`:''}
+        </div>
+        ${im.obs?`<div style="background:var(--navy-soft);border-radius:8px;padding:10px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px;">✨ ${im.obs}</div>`:''}
+        ${im.msgDivulgacao?`<div style="background:var(--navy-soft);border-radius:8px;padding:10px;font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;">${im.msgDivulgacao}</div>`:''}
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
+          <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();toggleScriptWpp('${im.id}')">📲 Script WhatsApp</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();deletar('${im.id}')">🗑️ Remover</button>
+        </div>
+        <div id="copy-wpp-${im.id}" style="display:none;margin-top:8px;"></div>
       </div>
     </div>`;
   }).join('');
 }
+
+function toggleDetalhe(id){
+  const el = document.getElementById('det-'+id);
+  if(!el) return;
+  const aberto = el.style.display !== 'none';
+  // fecha todos os outros
+  document.querySelectorAll('[id^="det-"]').forEach(d=>d.style.display='none');
+  document.querySelectorAll('.imovel-item').forEach(d=>d.style.borderColor='');
+  if(!aberto){
+    el.style.display='block';
+    el.closest('.imovel-item').style.borderColor='var(--gold)';
+  }
+}
+window.toggleDetalhe = toggleDetalhe;
 
 // Hook filtro busca texto
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1585,6 +1931,31 @@ function renderDashboard(){
 }
 window.renderDashboard = renderDashboard;
 
+// patch renderDashboard to include CRM funil
+const _renderDashOrig = renderDashboard;
+window.renderDashboard = function(){
+  _renderDashOrig();
+  // Funil CRM
+  const all = crmGetAll ? crmGetAll() : [];
+  const funil = document.getElementById('dash-funil'); if(!funil) return;
+  if(!all.length){ funil.innerHTML='<p style="font-size:13px;color:var(--text-dim);">Nenhuma parceria registrada ainda.</p>'; return; }
+  const total = all.length;
+  const stages = [
+    {label:'Enviadas',    color:'var(--gold)',  n: all.filter(p=>p.status==='Enviada').length},
+    {label:'Negociando',  color:'#6EB5FF',      n: all.filter(p=>p.status==='Negociando').length},
+    {label:'Fechadas 🎉', color:'var(--green)', n: all.filter(p=>p.status==='Fechado').length},
+    {label:'Perdidas',    color:'var(--red)',   n: all.filter(p=>p.status==='Perdido').length},
+  ];
+  const taxa = total>0 ? Math.round(all.filter(p=>p.status==='Fechado').length/total*100) : 0;
+  funil.innerHTML = stages.map(s=>`
+    <div class="bar-row">
+      <div class="bar-label">${s.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${total>0?Math.round(s.n/total*100):0}%;background:${s.color};"></div></div>
+      <div class="bar-count">${s.n}</div>
+    </div>`).join('') +
+    `<div style="margin-top:10px;font-size:12px;color:var(--text-dim);">Taxa de conversão: <strong style="color:var(--green);">${taxa}%</strong></div>`;
+};
+
 // ══════════════════════════════════════
 // TEMA CLARO / ESCURO
 // ══════════════════════════════════════
@@ -1601,24 +1972,100 @@ window.toggleTheme = toggleTheme;
 })();
 
 // ══════════════════════════════════════
-// PWA — INSTALAR APP
+// PWA — INSTALAR APP (iOS + Android)
 // ══════════════════════════════════════
 let deferredPrompt = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+
+// Android/Chrome: captura o evento de instalação
 window.addEventListener('beforeinstallprompt', (e)=>{
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById('install-btn').style.display = 'block';
+  // mostra botão no header (desktop) e banner (mobile)
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'block';
+  if(isMobile && !isInStandaloneMode) mostrarInstallBanner('android');
 });
+
 window.addEventListener('appinstalled', ()=>{
-  document.getElementById('install-btn').style.display = 'none';
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'none';
+  fecharInstallBanner();
   toast('✅ App instalado com sucesso!');
 });
+
+// iOS: mostra instrução manual após 3s
+if(isIOS && !isInStandaloneMode){
+  setTimeout(()=> mostrarInstallBanner('ios'), 3000);
+}
+
+function mostrarInstallBanner(tipo){
+  const banner = document.getElementById('install-banner');
+  const msg    = document.getElementById('install-banner-msg');
+  const btnB   = document.getElementById('install-banner-btn');
+  if(!banner || !msg) return;
+  // não mostra se já foi dispensado nesta sessão
+  if(sessionStorage.getItem('install_dismissed')) return;
+
+  if(tipo === 'ios'){
+    msg.innerHTML = 'Para instalar no iPhone/iPad:<br>1. Toque em <strong style="color:var(--gold);">Compartilhar</strong> (ícone ⬆️ na barra do Safari)<br>2. Role e toque em <strong style="color:var(--gold);">"Adicionar à Tela de Início"</strong>';
+    if(btnB) btnB.style.display = 'none';
+  } else {
+    msg.innerHTML = 'Adicione o app na tela inicial e acesse offline, mais rápido!';
+    if(btnB) btnB.style.display = 'block';
+  }
+  banner.style.display = 'block';
+}
+
+function fecharInstallBanner(){
+  const banner = document.getElementById('install-banner');
+  if(banner) banner.style.display = 'none';
+  sessionStorage.setItem('install_dismissed','1');
+}
+window.fecharInstallBanner = fecharInstallBanner;
+
 function instalarPWA(){
-  if(!deferredPrompt){ toast('Use o menu do navegador para instalar.'); return; }
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice=>{
+      if(choice.outcome === 'accepted') fecharInstallBanner();
+      deferredPrompt = null;
+    });
+  } else if(isIOS){
+    mostrarInstallBanner('ios');
+  } else {
+    toast('Use o menu do navegador → "Adicionar à tela inicial"');
+  }
 }
 window.instalarPWA = instalarPWA;
+
+// Botão fixo "Instalar App" no header desktop
+const _installBtn = document.getElementById('install-btn');
+if(_installBtn) _installBtn.onclick = instalarPWA;
+
+// ══════════════════════════════════════
+// NAVEGAÇÃO MOBILE (bottom nav sync)
+// ══════════════════════════════════════
+function switchTabMobile(tab, btnNav){
+  // sync desktop tabs
+  const desktopBtn = [...document.querySelectorAll('header .tab')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));
+  if(desktopBtn) switchTab(tab, desktopBtn);
+  // sync bottom nav active state
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  if(btnNav) btnNav.classList.add('active');
+}
+window.switchTabMobile = switchTabMobile;
+
+// Keep bottom nav in sync when desktop tabs are clicked
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(tab, btn){
+  _origSwitchTab(tab, btn);
+  document.querySelectorAll('.bnav-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+};
 
 // ══════════════════════════════════════
 // PATCH: switchTab para carregar dashboard e histórico
@@ -1648,6 +2095,215 @@ window.renderLista = function(){
 };
 
 
+
+// ══════════════════════════════════════
+// CRM — PARCERIAS & ALERTAS
+// ══════════════════════════════════════
+const CRM_KEY    = 'me_crm_parcerias';
+const ALERTA_KEY = 'me_alertas_busca';
+
+function crmGetAll(){ try{ return JSON.parse(localStorage.getItem(CRM_KEY)||'[]'); }catch{ return []; } }
+function crmSaveAll(arr){ localStorage.setItem(CRM_KEY, JSON.stringify(arr)); }
+function alertasGetAll(){ try{ return JSON.parse(localStorage.getItem(ALERTA_KEY)||'[]'); }catch{ return []; } }
+function alertasSaveAll(arr){ localStorage.setItem(ALERTA_KEY, JSON.stringify(arr)); }
+
+// ── REGISTRAR PARCERIA ──
+function crmRegistrar(dados){
+  // pode ser chamado com objeto (via busca) ou via form manual
+  let p;
+  if(dados){
+    p = {...dados, id: Date.now(), status:'Enviada', data: new Date().toISOString()};
+  } else {
+    const corretor = document.getElementById('crm-f-corretor')?.value.trim();
+    const tel      = document.getElementById('crm-f-tel')?.value.trim().replace(/\D/g,'');
+    const imovelId = document.getElementById('crm-f-imovel')?.value;
+    const canal    = document.getElementById('crm-f-canal')?.value || 'WhatsApp Grupo';
+    const obs      = document.getElementById('crm-f-obs')?.value.trim();
+    if(!corretor){ toast('⚠️ Informe o nome do corretor!'); return; }
+    const im = cache.find(i=>i.id===imovelId);
+    p = {
+      id: Date.now(), status:'Enviada', data: new Date().toISOString(),
+      corretor, tel, canal, obs,
+      imovelId, imovelNome: im?.nome||'—', imovelSetor: im?.setor||'—', imovelValor: im?.valor||0
+    };
+    // clear form
+    ['crm-f-corretor','crm-f-tel','crm-f-obs'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  }
+  const all = crmGetAll();
+  all.unshift(p);
+  crmSaveAll(all);
+  toast('✅ Parceria registrada no CRM!');
+  renderCrm();
+  renderCrmStats();
+}
+window.crmRegistrar = crmRegistrar;
+
+// ── ATUALIZAR STATUS ──
+function crmSetStatus(id, status){
+  const all = crmGetAll().map(p=> p.id===id ? {...p, status} : p);
+  crmSaveAll(all);
+  renderCrm();
+  renderCrmStats();
+  toast(status==='Fechado'?'🎉 Parceria fechada! Parabéns!':'📝 Status atualizado');
+}
+window.crmSetStatus = crmSetStatus;
+
+function crmDelete(id){
+  if(!confirm('Remover esta parceria?')) return;
+  crmSaveAll(crmGetAll().filter(p=>p.id!==id));
+  renderCrm(); renderCrmStats();
+  toast('🗑️ Removido');
+}
+window.crmDelete = crmDelete;
+
+// ── RENDER STATS (funil) ──
+function renderCrmStats(){
+  const all = crmGetAll();
+  document.getElementById('crm-enviadas').textContent  = all.filter(p=>p.status==='Enviada').length;
+  document.getElementById('crm-negociando').textContent= all.filter(p=>p.status==='Negociando').length;
+  document.getElementById('crm-fechados').textContent  = all.filter(p=>p.status==='Fechado').length;
+  document.getElementById('crm-perdidos').textContent  = all.filter(p=>p.status==='Perdido').length;
+}
+
+// ── FILTRO CRM ──
+let crmFiltroAtual = 'todos';
+function setCrmFiltro(el){
+  document.querySelectorAll('#crm-filtros .filtro-chip').forEach(c=>c.classList.remove('ativo'));
+  el.classList.add('ativo');
+  crmFiltroAtual = el.dataset.cf;
+  renderCrm();
+}
+window.setCrmFiltro = setCrmFiltro;
+
+// ── RENDER LISTA CRM ──
+function renderCrm(){
+  const el = document.getElementById('crm-lista'); if(!el) return;
+  let all = crmGetAll();
+  if(crmFiltroAtual !== 'todos') all = all.filter(p=>p.status===crmFiltroAtual);
+  if(!all.length){
+    el.innerHTML='<div class="empty"><div class="emoji">🤝</div><p>Nenhuma parceria registrada ainda.</p></div>';
+    return;
+  }
+  const statusColors = { Enviada:'var(--gold)', Negociando:'#6EB5FF', Fechado:'var(--green)', Perdido:'var(--red)' };
+  const statusEmoji  = { Enviada:'📤', Negociando:'🔄', Fechado:'✅', Perdido:'❌' };
+  el.innerHTML = all.map(p=>{
+    const d = new Date(p.data);
+    const quando = d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const cor = statusColors[p.status]||'var(--text-dim)';
+    return `<div style="background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:12px;padding:14px;margin-bottom:9px;animation:fadeUp .2s ease;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--cream);">👤 ${p.corretor}</div>
+          ${p.tel?`<div style="font-size:11px;color:var(--text-dim);">📱 ${p.tel.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3')} · ${p.canal||''}</div>`:''}
+        </div>
+        <span style="background:${cor}22;color:${cor};border:1px solid ${cor}55;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;">${statusEmoji[p.status]||''} ${p.status}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">
+        🏠 ${p.imovelNome||'—'} · 📍 ${p.imovelSetor||'—'}${p.imovelValor?` · ${fmtCur(p.imovelValor)}`:''}
+      </div>
+      ${p.obs?`<div style="font-size:12px;color:var(--text);background:var(--navy);border-radius:7px;padding:7px 10px;margin-bottom:8px;">💬 ${p.obs}</div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px;">
+        <div style="font-size:10px;color:var(--text-dim);">🕐 ${quando}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          ${p.tel?`<a href="https://wa.me/55${p.tel}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;font-size:11px;">📲 WhatsApp</a>`:''}
+          ${p.status!=='Negociando'?`<button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="crmSetStatus(${p.id},'Negociando')">🔄 Negociando</button>`:''}
+          ${p.status!=='Fechado'?`<button class="btn btn-outline btn-sm" style="font-size:11px;color:var(--green);border-color:var(--green);" onclick="crmSetStatus(${p.id},'Fechado')">✅ Fechado</button>`:''}
+          ${p.status!=='Perdido'?`<button class="btn btn-outline btn-sm" style="font-size:11px;color:var(--red);border-color:var(--red);" onclick="crmSetStatus(${p.id},'Perdido')">❌ Perdido</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="crmDelete(${p.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── POPULAR SELECT DE IMÓVEIS NO FORM CRM ──
+function popularCrmSelect(){
+  const sel = document.getElementById('crm-f-imovel'); if(!sel) return;
+  sel.innerHTML = '<option value="">Selecione o imóvel...</option>' +
+    cache.map(im=>`<option value="${im.id}">${im.nome} — ${fmtCur(im.valor)}</option>`).join('');
+}
+
+// ── ALERTAS DE MATCH ──
+function salvarAlerta(){
+  const input = document.getElementById('alerta-input');
+  const texto = input?.value.trim();
+  if(!texto){ toast('⚠️ Digite a busca para salvar!'); return; }
+  const all = alertasGetAll();
+  all.unshift({ id:Date.now(), texto, data: new Date().toISOString(), matches:[] });
+  alertasSaveAll(all);
+  if(input) input.value = '';
+  renderAlertas();
+  toast('🔔 Alerta salvo! Vou avisar quando entrar imóvel compatível.');
+  verificarAlertas();
+}
+window.salvarAlerta = salvarAlerta;
+
+function deletarAlerta(id){
+  alertasSaveAll(alertasGetAll().filter(a=>a.id!==id));
+  renderAlertas();
+}
+window.deletarAlerta = deletarAlerta;
+
+function renderAlertas(){
+  const el = document.getElementById('alertas-lista'); if(!el) return;
+  const all = alertasGetAll();
+  if(!all.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text-dim);padding:8px 0;">Nenhum alerta salvo.</div>';
+    return;
+  }
+  el.innerHTML = all.map(a=>{
+    const novos = (a.matches||[]).filter(m=>!m.visto).length;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--navy-soft);border:1px solid ${novos?'var(--gold)':'var(--navy-border)'};border-radius:10px;margin-bottom:7px;">
+      <div style="flex:1;font-size:12px;color:var(--text);">🔔 ${a.texto}</div>
+      ${novos?`<span style="background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;">${novos} novo${novos>1?'s':''}</span>`:''}
+      <button class="btn btn-danger" style="font-size:11px;padding:4px 9px;" onclick="deletarAlerta(${a.id})">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+// ── VERIFICAR ALERTAS ao cadastrar novo imóvel ──
+async function verificarAlertas(){
+  const alertas = alertasGetAll();
+  if(!alertas.length || !cache.length) return;
+  let novosMatch = 0;
+  for(const alerta of alertas){
+    // usa IA para checar match
+    const lista = cache.map((im,i)=>({indice:i,nome:im.nome,tipo:im.tipo,setor:im.setor,quartos:im.quartos,valor:im.valor,gatilhos:im.gatilhos||[]}));
+    try{
+      const r = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-calls':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:
+          `Busca: "${alerta.texto}"\nImóveis: ${JSON.stringify(lista)}\nResponda SOMENTE JSON: {"matches":[{"indice":0,"score":80}]} — apenas score>=60, máx 3.`
+        }]})
+      });
+      const d = await r.json();
+      const raw = d.content?.map(c=>c.text||'').join('').trim();
+      let res; try{res=JSON.parse(raw);}catch{const m=raw.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
+      if(res?.matches?.length){
+        const novos = res.matches.map(m=>({imovelIndice:m.indice,score:m.score,visto:false,data:new Date().toISOString()}));
+        alerta.matches = [...(alerta.matches||[]), ...novos.filter(n=>!(alerta.matches||[]).some(ex=>ex.imovelIndice===n.imovelIndice))];
+        novosMatch += novos.length;
+      }
+    }catch(e){ /* silencioso */ }
+  }
+  alertasSaveAll(alertas);
+  renderAlertas();
+  if(novosMatch>0) toast(`🔔 ${novosMatch} alerta(s) de match atualizado(s)!`, 4000);
+}
+window.verificarAlertas = verificarAlertas;
+
+// ── REGISTRAR PARCERIA VIA BOTÃO DA BUSCA ──
+function crmRegistrarDaBusca(imovelId, corretor, tel, canal){
+  const im = cache.find(i=>i.id===imovelId);
+  crmRegistrar({
+    corretor: corretor||'Corretor do grupo',
+    tel: tel||'',
+    canal: canal||'WhatsApp Grupo',
+    obs: '',
+    imovelId, imovelNome: im?.nome||'—', imovelSetor: im?.setor||'—', imovelValor: im?.valor||0
+  });
+}
+window.crmRegistrarDaBusca = crmRegistrarDaBusca;
 
 // ── MAPA DE GOIÂNIA ──
 const SETORES_GOIANIA = [
