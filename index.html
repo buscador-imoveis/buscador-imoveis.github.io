@@ -262,9 +262,101 @@ body.light body::before { display:none; }
 /* INSTALAR PWA btn */
 #install-btn { display:none; background:linear-gradient(135deg,var(--gold),var(--gold-dim)); color:var(--navy); border:none; border-radius:8px; padding:6px 13px; font-size:12px; font-weight:700; cursor:pointer; }
 
+/* ── PIN MODAL ── */
+#pin-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(13,27,42,.92); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center;
+}
+#pin-overlay.show { display:flex; }
+#pin-box {
+  background:var(--navy-mid); border:1px solid var(--gold-dim);
+  border-radius:20px; padding:32px 28px; width:320px; max-width:90vw;
+  text-align:center; animation:slideUp .25s ease;
+}
+.pin-title { font-family:'Playfair Display',serif; font-size:22px; color:var(--gold); margin-bottom:6px; }
+.pin-subtitle { font-size:12px; color:var(--text-dim); margin-bottom:24px; }
+.pin-dots { display:flex; justify-content:center; gap:14px; margin-bottom:24px; }
+.pin-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--navy-border); background:transparent; transition:all .2s; }
+.pin-dot.filled { background:var(--gold); border-color:var(--gold); box-shadow:0 0 10px rgba(201,168,76,.4); }
+.pin-dot.error { background:var(--red); border-color:var(--red); }
+.pin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.pin-key {
+  background:var(--navy-soft); border:1px solid var(--navy-border);
+  border-radius:12px; padding:16px; font-size:20px; font-weight:700;
+  color:var(--cream); cursor:pointer; transition:all .15s; user-select:none;
+  font-family:'DM Sans',sans-serif;
+}
+.pin-key:active { background:var(--gold); color:var(--navy); transform:scale(.93); }
+.pin-key.del { color:var(--red); font-size:16px; }
+.pin-cancel { font-size:12px; color:var(--text-dim); cursor:pointer; margin-top:4px; }
+.pin-cancel:hover { color:var(--gold); }
+.pin-error-msg { font-size:12px; color:var(--red); margin-top:8px; min-height:18px; }
+
+/* ── ADMIN BADGE ── */
+#admin-badge {
+  display:none; position:fixed; bottom:72px; right:14px; z-index:500;
+  background:var(--gold); color:var(--navy); border-radius:20px;
+  padding:5px 13px; font-size:11px; font-weight:800; cursor:pointer;
+  box-shadow:0 4px 16px rgba(201,168,76,.4); animation:slideUp .3s ease;
+}
+@media(min-width:681px){ #admin-badge { bottom:14px; } }
+
+/* ── FOTO GALLERY ── */
+.foto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+.foto-thumb { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:border-color .15s; }
+.foto-thumb:hover { border-color:var(--gold); }
+.foto-full-overlay { display:none; position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.92); align-items:center; justify-content:center; }
+.foto-full-overlay.show { display:flex; }
+.foto-full-overlay img { max-width:95vw; max-height:90vh; border-radius:10px; object-fit:contain; }
+.foto-full-close { position:absolute; top:16px; right:20px; color:#fff; font-size:28px; cursor:pointer; }
+.foto-full-nav { position:absolute; top:50%; transform:translateY(-50%); font-size:32px; color:#fff; cursor:pointer; background:rgba(0,0,0,.4); border:none; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
+.foto-full-prev { left:10px; }
+.foto-full-next { right:10px; }
+
 </style>
 </head>
 <body>
+
+<!-- ══ PIN MODAL ══ -->
+<div id="pin-overlay">
+  <div id="pin-box">
+    <div class="pin-title">🔐 Área Admin</div>
+    <div class="pin-subtitle">Digite o PIN para acessar o modo de edição</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinDigit('1')">1</button>
+      <button class="pin-key" onclick="pinDigit('2')">2</button>
+      <button class="pin-key" onclick="pinDigit('3')">3</button>
+      <button class="pin-key" onclick="pinDigit('4')">4</button>
+      <button class="pin-key" onclick="pinDigit('5')">5</button>
+      <button class="pin-key" onclick="pinDigit('6')">6</button>
+      <button class="pin-key" onclick="pinDigit('7')">7</button>
+      <button class="pin-key" onclick="pinDigit('8')">8</button>
+      <button class="pin-key" onclick="pinDigit('9')">9</button>
+      <button class="pin-key" onclick="pinClear()" style="grid-column:1">⌫</button>
+      <button class="pin-key" onclick="pinDigit('0')">0</button>
+      <button class="pin-key" onclick="pinCancel()" style="font-size:12px;color:var(--text-dim);">✕</button>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- ══ FOTO LIGHTBOX ══ -->
+<div class="foto-full-overlay" id="foto-lightbox" onclick="fecharLightbox()">
+  <span class="foto-full-close" onclick="fecharLightbox()">✕</span>
+  <button class="foto-full-nav foto-full-prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+  <img id="foto-lightbox-img" src="" alt="foto">
+  <button class="foto-full-nav foto-full-next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+</div>
+
+<!-- ══ ADMIN BADGE ══ -->
+<div id="admin-badge" onclick="sairAdmin()">🔐 Admin — Sair</div>
 
 <header>
   <div class="logo">M&E Imóveis<small>SISTEMA DE PARCERIAS</small></div>
@@ -458,6 +550,13 @@ body.light body::before { display:none; }
         <label>Diferenciais / Observações</label>
         <textarea id="f-obs" placeholder="Ex: 2 vagas, churrasqueira, piscina, condomínio fechado, portão eletrônico..."></textarea>
       </div>
+      <div class="form-group full">
+        <label>📸 Fotos do Imóvel — Links do Exa Cloud</label>
+        <textarea id="f-fotos" placeholder="Cole os links das fotos, um por linha:
+https://exacloud.com/sua-foto-1.jpg
+https://exacloud.com/sua-foto-2.jpg" style="min-height:80px;font-size:12px;"></textarea>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Cole o link direto de cada foto do Exa Cloud, uma por linha.</div>
+      </div>
       <div class="form-group">
         <label>👤 Nome do Proprietário / Captador</label>
         <input type="text" id="f-contato-nome" placeholder="Ex: João Silva">
@@ -628,6 +727,17 @@ Moinho dos Ventos, 220000, 280000"></textarea>
     <div class="card-title">🤝 Funil de Conversão (CRM)</div>
     <div id="dash-funil"></div>
   </div>
+  <!-- RELATÓRIOS E BACKUP -->
+  <div class="card" style="border-color:rgba(201,168,76,.35);">
+    <div class="card-title">📄 Relatórios & Backup</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.6;">Gere relatórios completos em PDF ou faça backup da sua carteira em Excel.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:9px;">
+      <button class="btn btn-gold" onclick="gerarRelatorioPDF('carteira')">📊 PDF — Carteira de Imóveis</button>
+      <button class="btn btn-gold" onclick="gerarRelatorioPDF('parcerias')">🤝 PDF — Relatório de Parcerias</button>
+      <button class="btn btn-outline" onclick="backupExcel()">💾 Backup Excel</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:10px;">💡 Backup automático salvo localmente toda vez que você abre o app.</div>
+  </div>
 </div>
 
 <!-- ══════ CRM — PARCERIAS ══════ -->
@@ -652,6 +762,10 @@ Moinho dos Ventos, 220000, 280000"></textarea>
     </div>
   </div>
   <!-- NOVA PARCERIA MANUAL -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div></div>
+    <button class="btn btn-outline btn-sm" onclick="pedirPermissaoNotificacao()" style="font-size:11px;">🔔 Ativar notificações</button>
+  </div>
   <div class="card" style="margin-bottom:14px;">
     <div class="card-title">➕ Registrar Parceria</div>
     <div class="form-grid">
@@ -716,7 +830,7 @@ Moinho dos Ventos, 220000, 280000"></textarea>
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp }
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, updateDoc, setDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const app = initializeApp({
   apiKey:"AIzaSyDPPWetVT4Kkgsf2yzPc5XAyUn3bZDVnR4",
@@ -727,6 +841,7 @@ const app = initializeApp({
 const db=getFirestore(app);
 window._db=db; window._col=collection; window._add=addDoc;
 window._get=getDocs; window._del=deleteDoc; window._doc=doc; window._ts=serverTimestamp;
+window._update=updateDoc; window._set=setDoc;
 window.addEventListener('load',()=>carregarImoveis());
 </script>
 
@@ -759,6 +874,152 @@ async function apiFetch(body, tentativas=3){
   }
 }
 window.apiFetch = apiFetch;
+
+// ══════════════════════════════════════
+// ADMIN — PIN SYSTEM
+// ══════════════════════════════════════
+const ADMIN_PIN = '1234'; // ← MUDE AQUI para o seu PIN desejado
+let pinBuffer = '';
+let isAdmin = false;
+window.isAdmin = false;
+
+function abrirPinModal(){
+  pinBuffer = '';
+  document.getElementById('pin-error').textContent = '';
+  atualizarDots();
+  document.getElementById('pin-overlay').classList.add('show');
+}
+window.abrirPinModal = abrirPinModal;
+
+function pinCancel(){
+  document.getElementById('pin-overlay').classList.remove('show');
+}
+window.pinCancel = pinCancel;
+
+function pinClear(){
+  if(pinBuffer.length > 0){
+    pinBuffer = pinBuffer.slice(0,-1);
+    atualizarDots();
+  }
+}
+window.pinClear = pinClear;
+
+function pinDigit(d){
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  atualizarDots();
+  if(pinBuffer.length === 4) setTimeout(verificarPin, 180);
+}
+window.pinDigit = pinDigit;
+
+function atualizarDots(){
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('pd'+i);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+    dot.classList.remove('error');
+  }
+}
+
+function verificarPin(){
+  if(pinBuffer === ADMIN_PIN){
+    isAdmin = true;
+    window.isAdmin = true;
+    document.getElementById('pin-overlay').classList.remove('show');
+    document.getElementById('admin-badge').style.display = 'block';
+    mostrarAbsAdmin(true);
+    toast('🔐 Modo Admin ativado!');
+    // re-render para mostrar botões de admin
+    renderLista();
+    renderListaFiltrada();
+  } else {
+    for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.add('error');
+    document.getElementById('pin-error').textContent = 'PIN incorreto. Tente novamente.';
+    setTimeout(()=>{
+      pinBuffer = '';
+      atualizarDots();
+      document.getElementById('pin-error').textContent = '';
+    }, 900);
+  }
+}
+
+function sairAdmin(){
+  isAdmin = false;
+  window.isAdmin = false;
+  document.getElementById('admin-badge').style.display = 'none';
+  mostrarAbsAdmin(false);
+  toast('🔓 Modo Admin desativado');
+  renderLista();
+  renderListaFiltrada();
+}
+window.sairAdmin = sairAdmin;
+
+// Mostra/oculta abas exclusivas do admin (Cadastrar, Importar, Em Lote)
+function mostrarAbsAdmin(show){
+  const abasAdmin = ['cadastrar','importar','lote'];
+  document.querySelectorAll('header .tab, .bnav-btn').forEach(btn=>{
+    const onclick = btn.getAttribute('onclick')||'';
+    const tab = (onclick.match(/'([^']+)'/)||[])[1];
+    if(abasAdmin.includes(tab)){
+      btn.style.display = show ? '' : 'none';
+    }
+  });
+}
+
+// Oculta abas admin na inicialização
+window.addEventListener('DOMContentLoaded', ()=>{
+  mostrarAbsAdmin(false);
+  // Adiciona botão Admin discretto no canto do header
+  const hdr = document.querySelector('header > div:last-child');
+  if(hdr){
+    const adminBtn = document.createElement('button');
+    adminBtn.className = 'theme-btn';
+    adminBtn.title = 'Admin';
+    adminBtn.innerHTML = '🔐';
+    adminBtn.onclick = abrirPinModal;
+    hdr.prepend(adminBtn);
+  }
+});
+
+// ══════════════════════════════════════
+// FOTOS — LIGHTBOX
+// ══════════════════════════════════════
+let lightboxFotos = [];
+let lightboxIdx = 0;
+
+function abrirLightbox(imovelId, idx){
+  const im = cache.find(i=>i.id===imovelId);
+  if(!im||!im.fotos||!im.fotos.length) return;
+  lightboxFotos = im.fotos;
+  lightboxIdx = idx;
+  document.getElementById('foto-lightbox-img').src = lightboxFotos[lightboxIdx];
+  document.getElementById('foto-lightbox').classList.add('show');
+}
+window.abrirLightbox = abrirLightbox;
+
+function fecharLightbox(){
+  document.getElementById('foto-lightbox').classList.remove('show');
+}
+window.fecharLightbox = fecharLightbox;
+
+function lightboxNav(dir){
+  lightboxIdx = (lightboxIdx + dir + lightboxFotos.length) % lightboxFotos.length;
+  document.getElementById('foto-lightbox-img').src = lightboxFotos[lightboxIdx];
+}
+window.lightboxNav = lightboxNav;
+
+// Swipe support for lightbox
+(function(){
+  let x0=null;
+  const el = document.getElementById('foto-lightbox');
+  if(!el) return;
+  el.addEventListener('touchstart',e=>{ x0=e.touches[0].clientX; },{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(x0===null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if(Math.abs(dx)>50) lightboxNav(dx<0?1:-1);
+    x0=null;
+  });
+})();
 
 // ── NAV ──
 function switchTab(tab,btn){
@@ -865,9 +1126,11 @@ async function salvarImovel(){
   const nome=document.getElementById('f-nome').value.trim();
   const tipo=document.getElementById('f-tipo').value;
   const setor=document.getElementById('f-setor').value.trim();
+  if(!isAdmin){ toast('🔐 Entre no modo Admin para cadastrar imóveis.'); abrirPinModal(); return; }
   if(!nome||!tipo||!setor){toast('⚠️ Preencha nome, tipo e setor!');return;}
   const imovel={
     nome,tipo,setor,
+    fotos:(document.getElementById('f-fotos')?.value.trim().split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'))||[]),
     contatoNome:document.getElementById('f-contato-nome')?.value.trim()||'',
     contatoTel:document.getElementById('f-contato-tel')?.value.trim().replace(/\D/g,'')||'',
     setoresProximos:document.getElementById('f-proximos').value.trim(),
@@ -894,7 +1157,7 @@ async function salvarImovel(){
 window.salvarImovel=salvarImovel;
 
 function limparForm(){
-  ['f-nome','f-setor','f-proximos','f-area','f-valor','f-avaliacao','f-obs','f-msg','f-contato-nome','f-contato-tel'].forEach(id=>{
+  ['f-nome','f-setor','f-proximos','f-area','f-valor','f-avaliacao','f-obs','f-msg','f-fotos','f-contato-nome','f-contato-tel'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   ['f-tipo','f-quartos','f-suites','f-financiamento','f-permuta'].forEach(id=>{
@@ -915,6 +1178,7 @@ async function carregarImoveis(){
     cache=[];
     snap.forEach(d=>cache.push({id:d.id,...d.data()}));
     renderLista(); renderEntrada(); atualizarStats(); popularFiltroSetor();
+    setTimeout(backupAutomatico, 2000);
   }catch(e){
     ['lista-imoveis','lista-entrada'].forEach(id=>{
       const el=document.getElementById(id);
@@ -943,7 +1207,7 @@ function renderLista(){
           <div class="imovel-preco">${fmtCur(im.valor)}</div>
           ${im.avaliacao?`<div style="font-size:10px;color:var(--text-dim)">aval. ${fmtCur(im.avaliacao)}</div>`:''}
         </div>
-        <button class="btn btn-danger" onclick="deletar('${im.id}')">🗑️</button>
+        ${isAdmin?`<button class="btn btn-danger" onclick="deletar('${im.id}')">🗑️</button>`:''}
       </div>
     </div>`).join('');
 }
@@ -995,11 +1259,13 @@ function atualizarStats(){
 }
 
 async function deletar(id){
+  if(!isAdmin){ toast('🔐 Entre no modo Admin para remover imóveis.'); abrirPinModal(); return; }
   if(!confirm('Remover este imóvel?'))return;
   try{
     await window._del(window._doc(window._db,'buscador_imoveis',id));
     cache=cache.filter(i=>i.id!==id);
     renderLista(); renderEntrada(); atualizarStats(); popularFiltroSetor();
+    setTimeout(backupAutomatico, 2000);
     toast('🗑️ Removido');
   }catch(e){toast('❌ Erro ao remover');}
 }
@@ -1015,13 +1281,14 @@ async function buscarComIA(){
 
   container.innerHTML='<div class="loading"><div class="spinner"></div> Analisando mensagem...</div>';
 
+  const fonteAtiva = cache.filter(im=>im.status!=='vendido');
   const apenasMargemAlta = document.getElementById('filtro-margem-alta')?.checked;
   let fonteCache = cache;
   if(apenasMargemAlta){
     fonteCache = cache.filter(im=>im.avaliacao && im.valor && calcEntrada(im).pctEntrada <= 15);
     if(!fonteCache.length){ container.innerHTML='<div class="empty"><div class="emoji">🚀</div><p>Nenhum imóvel com margem alta cadastrado. Desmarque o filtro ou cadastre imóveis com Avaliação Bancária maior que 20% acima do valor.</p></div>'; return; }
   }
-  const lista=fonteCache.map((im,i)=>({
+  const lista=fonteAtiva.map((im,i)=>({
     indice:cache.indexOf(im),nome:im.nome,tipo:im.tipo,setor:im.setor,
     setoresProximos:im.setoresProximos||'',
     quartos:im.quartos,area:im.area,valor:im.valor,avaliacao:im.avaliacao||0,
@@ -1137,6 +1404,7 @@ function renderResultados(res,msgOrig){
       </div>
       <div class="res-preco">${fmtCur(im.valor)}</div>
       ${im.avaliacao?`<div class="res-aval">Avaliação: ${fmtCur(im.avaliacao)} → Banco: ${fmtCur(financiado)} → Entrada: <strong style="color:#E8C97A;">${entradaZero?'R$ 0 🚀':fmtCur(entrada)}</strong></div>`:''}
+      ${(im.fotos||[]).length?`<div class="foto-grid" style="margin:8px 0;">${im.fotos.slice(0,3).map((f,i)=>`<img class="foto-thumb" src="${f}" onerror="this.style.display='none'" onclick="abrirLightbox('${im.id}',${i})" loading="lazy">`).join('')}${im.fotos.length>3?`<div style="font-size:11px;color:var(--text-dim);padding-top:4px;">+${im.fotos.length-3} fotos</div>`:''}</div>`:''}
       <div class="res-motivo">💡 ${r.motivo}</div>
       <div class="res-actions">
         ${wppDireto?`<a href="${wppDireto}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">📲 Enviar para ${contatoNome||'corretor'}</a>`:''}
@@ -1251,19 +1519,20 @@ async function preencherComIA(){
   const texto=document.getElementById('paste-imovel').value.trim();
   if(!texto){toast('⚠️ Cole um texto primeiro!');return;}
   const status=document.getElementById('paste-status');
-  status.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Lendo anúncio...</div>';
+  status.innerHTML='<div class="loading" style="padding:10px 0;"><div class="spinner"></div> Extraindo dados e gerando descrição profissional...</div>';
 
-  const prompt=`Extraia dados de imóvel do texto abaixo. Responda SOMENTE JSON válido sem markdown.
+  const prompt=`Você é especialista em mercado imobiliário em Goiânia. Extraia os dados do anúncio abaixo e gere uma descrição profissional completa. Responda SOMENTE JSON válido sem markdown.
 
 Texto: """${texto}"""
 
-{"nome":"título curto ex: Casa St. Maysa 3q","tipo":"Apartamento|Casa|Lote / Terreno|Chácara|Comercial|Kitnet / Studio|Sobrado","setor":"setor principal","setoresProximos":"outros separados por vírgula","quartos":0,"suites":0,"area":0,"valor":0,"avaliacao":0,"financiamento":"sim|nao|parcial","permuta":"sim|nao|parcial","gatilhos":["MCMV"],"obs":"diferenciais"}
+Formato JSON esperado:
+{"nome":"título curto ex: Casa St. Maysa 3q","tipo":"Apartamento|Casa|Lote / Terreno|Chácara|Comercial|Kitnet / Studio|Sobrado","setor":"setor principal","setoresProximos":"outros bairros próximos separados por vírgula","quartos":0,"suites":0,"area":0,"valor":0,"avaliacao":0,"financiamento":"sim|nao|parcial","permuta":"sim|nao|parcial","gatilhos":["MCMV"],"obs":"diferenciais em 1-2 linhas","descricao":"Descrição COMPLETA e PROFISSIONAL para WhatsApp/portais. Mínimo 6 linhas. Use emojis estratégicos. Destaque: localização, cômodos, área, diferenciais, financiamento, entrada facilitada (se avaliacao maior que valor). Termine com chamada para ação profissional."}
 
 Gatilhos possíveis: MCMV, Alto Padrão, Entrada Zero, Avaliação Alta, Aceita FGTS, Aceita Permuta, Pronto para Morar, Doc Grátis, Lançamento, Oportunidade, Baixo Condomínio, Perto de Escola.
-valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGTS. "Avaliação Alta" se avaliacao>valor. "Entrada Zero" se (avaliacao-valor)/avaliacao>=0.8.`;
+valor/avaliacao: inteiros. financiamento "sim" se mencionar FGTS ou financiamento. "Avaliação Alta" se avaliacao>valor. "Entrada Zero" se (avaliacao-valor)/avaliacao>=0.2.`;
 
   try{
-    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:prompt}]});
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
     const raw=data.content?.map(c=>c.text||'').join('').trim();
     let info; try{info=JSON.parse(raw);}catch{const m=raw.match(/\{[\s\S]*\}/);info=m?JSON.parse(m[0]):null;}
     if(!info) throw new Error('Não consegui interpretar');
@@ -1275,7 +1544,7 @@ valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGT
     if(info.valor) document.getElementById('f-valor').value=info.valor;
     if(info.avaliacao) document.getElementById('f-avaliacao').value=info.avaliacao;
     if(info.obs) document.getElementById('f-obs').value=info.obs;
-    document.getElementById('f-msg').value=texto;
+    document.getElementById('f-msg').value = info.descricao || texto;
 
     if(info.tipo){const sel=document.getElementById('f-tipo');for(let o of sel.options){if(o.value===info.tipo||o.text===info.tipo){sel.value=o.value;break;}}}
     if(info.quartos!=null) document.getElementById('f-quartos').value=Math.min(info.quartos,5);
@@ -1289,7 +1558,15 @@ valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGT
       });
     }
     calcularMargem();
-    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:9px;font-size:13px;color:var(--green);">✅ Formulário preenchido! Confira os dados e clique em <strong>Salvar Imóvel</strong>.</div>`;
+
+    const descPreview = info.descricao ? `
+      <div style="margin-top:10px;background:var(--navy-soft);border:1px solid rgba(201,168,76,.3);border-radius:9px;padding:12px;">
+        <div style="font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">✨ Descrição gerada pela IA</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.8;white-space:pre-wrap;">${info.descricao}</div>
+        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.getElementById('f-msg').value).then(()=>toast('📋 Descrição copiada!'))">📋 Copiar descrição</button>
+      </div>` : '';
+
+    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:9px;font-size:13px;color:var(--green);">✅ Formulário preenchido! Descrição profissional gerada automaticamente. Confira e clique em <strong>Salvar Imóvel</strong>.</div>${descPreview}`;
     setTimeout(()=>document.getElementById('f-nome').scrollIntoView({behavior:'smooth',block:'center'}),300);
   }catch(e){
     const errMsg = e.name==='AbortError'?'Timeout — verifique sua internet e tente novamente.':e.message;
@@ -1602,6 +1879,7 @@ function abrirPlanilhaRapida(){
 window.abrirPlanilhaRapida=abrirPlanilhaRapida;
 
 async function processarPlanilhaRapida(){
+  if(!isAdmin){ toast('🔐 Modo Admin necessário.'); abrirPinModal(); return; }
   const texto = document.getElementById('planilha-rapida-input').value.trim();
   if(!texto){toast('⚠️ Cole a lista primeiro!');return;}
   const status = document.getElementById('planilha-rapida-status');
@@ -1817,15 +2095,16 @@ function renderListaCustom(lista){
   el.innerHTML = lista.map(im=>{
     const {financiado,entrada,entradaZero,pctEntrada} = calcEntrada(im);
     const margemBruta = im.avaliacao&&im.avaliacao>im.valor ? im.avaliacao-im.valor : 0;
-    return `<div class="imovel-item" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;" onclick="toggleDetalhe('${im.id}')">
+    return `<div class="imovel-item" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;${im.status==='vendido'?'opacity:.55;':''}${im.status==='reservado'?'border-color:#6EB5FF !important;':''}" onclick="toggleDetalhe('${im.id}')">
       <!-- LINHA PRINCIPAL -->
       <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;gap:10px;">
         <div style="flex:1;min-width:0;">
           <!-- SETOR em destaque -->
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">
             <span style="background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;letter-spacing:.5px;white-space:nowrap;">📍 ${im.setor||'—'}</span>
             ${im.tipo?`<span style="font-size:10px;color:var(--text-dim);background:var(--navy-border);padding:2px 7px;border-radius:10px;">${im.tipo}</span>`:''}
             ${im.quartos?`<span style="font-size:10px;color:var(--text-dim);">${im.quartos}q${im.suites?' · '+im.suites+'s':''}</span>`:''}
+            ${im.status==='vendido'?'<span style="background:#E05555;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">✅ VENDIDO</span>':im.status==='reservado'?'<span style="background:#6EB5FF;color:var(--navy);font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">🔒 RESERVADO</span>':''}
           </div>
           <!-- NOME -->
           <div style="font-weight:700;font-size:13px;color:var(--cream);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${im.nome}</div>
@@ -1872,14 +2151,25 @@ function renderListaCustom(lista){
           ${im.financiamento&&im.financiamento!=='nao'?`<span style="color:var(--green);">✅ Financiamento ${im.financiamento==='parcial'?'(parcial)':''}</span>`:''}
           ${im.permuta&&im.permuta!=='nao'?`<span style="color:var(--gold);">🔄 Permuta ${im.permuta==='parcial'?'(parcial)':''}</span>`:''}
           ${im.setoresProximos?`<span>📍 Próx.: ${im.setoresProximos}</span>`:''}
-          ${im.contatoNome?`<span style="color:var(--gold);">👤 ${im.contatoNome}${im.contatoTel?' — <a href="https://wa.me/55'+im.contatoTel+'" target="_blank" style="color:var(--green);">📱 WhatsApp</a>':''}</span>`:''}
+          ${im.contatoNome&&isAdmin?`<span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:5px 10px;display:inline-flex;align-items:center;gap:7px;">🔐 <strong style="color:var(--gold);">${im.contatoNome}</strong>${im.contatoTel?` — <a href="https://wa.me/55${im.contatoTel}" target="_blank" style="color:var(--green);">📱 ${im.contatoTel.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3')}</a>`:''}</span>`:im.contatoNome?'<span style="font-size:11px;color:var(--text-dim);">🔒 Dados do proprietário — somente admin</span>':''}
         </div>
         ${im.obs?`<div style="background:var(--navy-soft);border-radius:8px;padding:10px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px;">✨ ${im.obs}</div>`:''}
         ${im.msgDivulgacao?`<div style="background:var(--navy-soft);border-radius:8px;padding:10px;font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;">${im.msgDivulgacao}</div>`:''}
+        ${(im.fotos||[]).length?`
+        <div style="margin-bottom:12px;">
+          <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">📸 Fotos (${im.fotos.length})</div>
+          <div class="foto-grid">${im.fotos.map((f,i)=>`<img class="foto-thumb" src="${f}" onerror="this.style.display='none'" onclick="event.stopPropagation();abrirLightbox('${im.id}',${i})" loading="lazy">`).join('')}</div>
+        </div>`:''}
         <div style="display:flex;gap:7px;flex-wrap:wrap;">
           ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
           <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();toggleScriptWpp('${im.id}')">📲 Script WhatsApp</button>
-          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();deletar('${im.id}')">🗑️ Remover</button>
+          <button class="btn btn-outline btn-sm" style="color:#7BB8F5;border-color:#7BB8F5;" onclick="event.stopPropagation();abrirPaginaPublica('${im.id}')">🔗 Página pública</button>
+          <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();gerarBookImovel('${im.id}')">📄 Book PDF</button>
+          ${isAdmin?`
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirEditarImovel('${im.id}')">✏️ Editar</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();alterarStatus('${im.id}','${im.status||'ativo'}')">🏷️ Status</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();calcularComissao('${im.id}')">💰 Comissão</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();deletar('${im.id}')">🗑️ Remover</button>`:''}
         </div>
         <div id="copy-wpp-${im.id}" style="display:none;margin-top:8px;"></div>
       </div>
@@ -1906,6 +2196,903 @@ document.addEventListener('DOMContentLoaded',()=>{
   const fb = document.getElementById('filtro-busca');
   if(fb) fb.addEventListener('input', renderListaFiltrada);
 });
+
+// ══════════════════════════════════════
+// EDITAR IMÓVEL
+// ══════════════════════════════════════
+function abrirEditarImovel(id){
+  const im = cache.find(i=>i.id===id); if(!im) return;
+  const modal = document.createElement('div');
+  modal.id = 'edit-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:800;background:rgba(13,27,42,.95);backdrop-filter:blur(10px);overflow-y:auto;padding:20px 12px;';
+
+  const fmtV = v => v||'';
+  modal.innerHTML = `
+    <div style="max-width:560px;margin:0 auto;background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:18px;padding:24px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);">✏️ Editar Imóvel</div>
+        <button onclick="document.getElementById('edit-modal').remove()" style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Nome</label><input id="ef-nome" value="${im.nome||''}"></div>
+        <div class="form-group"><label>Tipo</label>
+          <select id="ef-tipo">
+            ${['Apartamento','Casa','Lote / Terreno','Chácara','Comercial','Kitnet / Studio','Sobrado'].map(t=>`<option value="${t}" ${im.tipo===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Setor</label><input id="ef-setor" value="${im.setor||''}"></div>
+        <div class="form-group"><label>Valor (R$)</label><input type="number" id="ef-valor" value="${im.valor||''}"></div>
+        <div class="form-group"><label>Avaliação (R$)</label><input type="number" id="ef-avaliacao" value="${im.avaliacao||''}"></div>
+        <div class="form-group"><label>Quartos</label><input type="number" id="ef-quartos" value="${im.quartos||''}" min="0" max="10"></div>
+        <div class="form-group"><label>Área (m²)</label><input type="number" id="ef-area" value="${im.area||''}"></div>
+        <div class="form-group"><label>Proprietário</label><input id="ef-contato-nome" value="${im.contatoNome||''}"></div>
+        <div class="form-group"><label>Telefone</label><input id="ef-contato-tel" value="${im.contatoTel||''}"></div>
+        <div class="form-group full"><label>Obs / Diferenciais</label><textarea id="ef-obs" style="min-height:70px;">${im.obs||''}</textarea></div>
+        <div class="form-group full"><label>Fotos (links, um por linha)</label><textarea id="ef-fotos" style="min-height:70px;font-size:12px;">${(im.fotos||[]).join('\n')}</textarea></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:18px;justify-content:flex-end;">
+        <button onclick="document.getElementById('edit-modal').remove()" class="btn btn-outline">Cancelar</button>
+        <button onclick="salvarEdicao('${id}')" class="btn btn-gold">💾 Salvar alterações</button>
+      </div>
+    </div>`;
+
+  // style inputs inside modal
+  modal.querySelectorAll('input,select,textarea').forEach(el=>{
+    el.style.cssText='width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;outline:none;';
+  });
+  document.body.appendChild(modal);
+}
+window.abrirEditarImovel = abrirEditarImovel;
+
+async function salvarEdicao(id){
+  const updates = {
+    nome:  document.getElementById('ef-nome')?.value.trim()||'',
+    tipo:  document.getElementById('ef-tipo')?.value||'',
+    setor: document.getElementById('ef-setor')?.value.trim()||'',
+    valor: parseFloat(document.getElementById('ef-valor')?.value)||0,
+    avaliacao: parseFloat(document.getElementById('ef-avaliacao')?.value)||0,
+    quartos: parseInt(document.getElementById('ef-quartos')?.value)||0,
+    area: parseFloat(document.getElementById('ef-area')?.value)||0,
+    contatoNome: document.getElementById('ef-contato-nome')?.value.trim()||'',
+    contatoTel: document.getElementById('ef-contato-tel')?.value.trim().replace(/\D/g,'')||'',
+    obs: document.getElementById('ef-obs')?.value.trim()||'',
+    fotos: (document.getElementById('ef-fotos')?.value.trim().split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'))||[]),
+  };
+  if(!updates.nome||!updates.tipo||!updates.setor){ toast('⚠️ Nome, tipo e setor são obrigatórios!'); return; }
+  try{
+    await window._update(window._doc(window._db,'buscador_imoveis',id), updates);
+    // update cache locally
+    const idx = cache.findIndex(i=>i.id===id);
+    if(idx>=0) cache[idx] = {...cache[idx], ...updates};
+    document.getElementById('edit-modal')?.remove();
+    renderListaFiltrada();
+    toast('✅ Imóvel atualizado!');
+  }catch(e){ toast('❌ Erro ao salvar: '+e.message); }
+}
+window.salvarEdicao = salvarEdicao;
+
+// ══════════════════════════════════════
+// STATUS DO IMÓVEL (ativo/reservado/vendido)
+// ══════════════════════════════════════
+function alterarStatus(id, statusAtual){
+  const opcoes = [
+    {val:'ativo',    label:'🟢 Disponível',  cor:'var(--green)'},
+    {val:'reservado',label:'🔒 Reservado',    cor:'#6EB5FF'},
+    {val:'vendido',  label:'✅ Vendido',       cor:'var(--gold)'},
+  ];
+  const modal = document.createElement('div');
+  modal.id = 'status-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:800;background:rgba(13,27,42,.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:18px;padding:28px 24px;width:300px;max-width:92vw;">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);margin-bottom:4px;">🏷️ Status do Imóvel</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:18px;">Selecione o novo status</div>
+      ${opcoes.map(o=>`
+        <button onclick="confirmarStatus('${id}','${o.val}')" style="display:flex;align-items:center;gap:12px;width:100%;background:${statusAtual===o.val?'rgba(201,168,76,.15)':'var(--navy-soft)'};border:2px solid ${statusAtual===o.val?o.cor:'var(--navy-border)'};border-radius:11px;padding:13px 15px;color:${o.cor};font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:9px;transition:all .15s;">
+          ${o.label} ${statusAtual===o.val?'<span style="margin-left:auto;font-size:11px;opacity:.7;">atual</span>':''}
+        </button>`).join('')}
+      <button onclick="document.getElementById('status-modal').remove()" style="width:100%;background:none;border:1px solid var(--navy-border);border-radius:9px;padding:9px;color:var(--text-dim);font-family:DM Sans,sans-serif;cursor:pointer;margin-top:4px;">Cancelar</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.alterarStatus = alterarStatus;
+
+async function confirmarStatus(id, novoStatus){
+  try{
+    await window._update(window._doc(window._db,'buscador_imoveis',id), {status: novoStatus});
+    const idx = cache.findIndex(i=>i.id===id);
+    if(idx>=0) cache[idx].status = novoStatus;
+    document.getElementById('status-modal')?.remove();
+    renderListaFiltrada();
+    const labels = {ativo:'🟢 Disponível', reservado:'🔒 Reservado', vendido:'✅ Vendido'};
+    toast('Status atualizado: '+labels[novoStatus]);
+  }catch(e){ toast('❌ Erro: '+e.message); }
+}
+window.confirmarStatus = confirmarStatus;
+
+// ══════════════════════════════════════
+// CALCULADORA DE COMISSÃO 50/50
+// ══════════════════════════════════════
+function calcularComissao(id){
+  const im = cache.find(i=>i.id===id); if(!im) return;
+  const modal = document.createElement('div');
+  modal.id = 'comissao-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:800;background:rgba(13,27,42,.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
+
+  const valorPadrao = im.valor||0;
+  modal.innerHTML = `
+    <div style="background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:18px;padding:26px 22px;width:360px;max-width:100%;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-bottom:4px;">💰 Calculadora de Comissão</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:18px;">${im.nome}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Valor de venda (R$)</label>
+          <input type="number" id="com-valor" value="${valorPadrao}" oninput="recalcComissao()" style="width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:DM Sans,sans-serif;">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">% Comissão total</label>
+          <input type="number" id="com-pct" value="5" min="1" max="10" step="0.5" oninput="recalcComissao()" style="width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:DM Sans,sans-serif;">
+        </div>
+      </div>
+
+      <div id="com-resultado" style="background:var(--navy);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px;">👤 Seu lado (M&E)</div>
+            <div id="com-minha" style="font-size:20px;font-weight:700;color:var(--gold);">—</div>
+          </div>
+          <div style="background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px;">🤝 Parceiro</div>
+            <div id="com-parceiro" style="font-size:20px;font-weight:700;color:var(--green);">—</div>
+          </div>
+          <div style="grid-column:1/-1;text-align:center;">
+            <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">Total de comissão</div>
+            <div id="com-total" style="font-size:16px;font-weight:700;color:var(--cream);">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="document.getElementById('comissao-modal').remove()" class="btn btn-gold btn-full">Fechar</button>
+    </div>`;
+
+  document.body.appendChild(modal);
+  recalcComissao();
+}
+window.calcularComissao = calcularComissao;
+
+function recalcComissao(){
+  const valor = parseFloat(document.getElementById('com-valor')?.value)||0;
+  const pct   = parseFloat(document.getElementById('com-pct')?.value)||6;
+  const total = valor * pct / 100;
+  const metade = total / 2;
+  const fmt = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const el1 = document.getElementById('com-minha');
+  const el2 = document.getElementById('com-parceiro');
+  const el3 = document.getElementById('com-total');
+  if(el1) el1.textContent = fmt(metade);
+  if(el2) el2.textContent = fmt(metade);
+  if(el3) el3.textContent = fmt(total)+' ('+pct+'%)';
+}
+window.recalcComissao = recalcComissao;
+
+// ══════════════════════════════════════
+// PÁGINA PÚBLICA DO IMÓVEL
+// ══════════════════════════════════════
+// ══════════════════════════════════════
+// BOOK PDF DO IMÓVEL
+// ══════════════════════════════════════
+function gerarBookImovel(id){
+  const im = cache.find(i=>i.id===id);
+  if(!im){ toast('Imóvel não encontrado.'); return; }
+
+  const {entrada, entradaZero, financiado, pctEntrada} = calcEntrada(im);
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const fmtV = v => v ? 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
+
+  const fotos = im.fotos||[];
+
+  // foto hero (primeira) e galeria (restantes)
+  const fotoHero = fotos[0]||'';
+  const fotoGaleria = fotos.slice(1);
+
+  // Linha de diferenciais
+  const diffs = [
+    im.area ? `📐 ${im.area}m²` : '',
+    im.quartos ? `🛏️ ${im.quartos} quarto${im.quartos>1?'s':''}` : '',
+    im.suites ? `🚿 ${im.suites} suíte${im.suites>1?'s':''}` : '',
+    im.financiamento&&im.financiamento!=='nao' ? '✅ Aceita financiamento' : '',
+    im.permuta&&im.permuta!=='nao' ? '🔄 Aceita permuta' : '',
+  ].filter(Boolean);
+
+  const gatilhosHtml = (im.gatilhos||[]).map(g=>
+    `<span style="background:#C9A84C22;color:#8B6F2E;border:1px solid #C9A84C55;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;">${g}</span>`
+  ).join('');
+
+  const galHtml = fotoGaleria.length ? `
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(fotoGaleria.length,3)},1fr);gap:8px;margin-bottom:24px;">
+      ${fotoGaleria.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;" onerror="this.style.display='none'">`).join('')}
+    </div>` : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>${im.nome} — M&E Imóveis</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#fff; color:#1a1a1a; }
+  @page { margin:0; size:A4; }
+  @media print {
+    .no-print { display:none !important; }
+    body { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+    .page-break { page-break-before:always; }
+  }
+
+  /* ── CAPA ── */
+  .capa {
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    background:#0D1B2A;
+    position:relative; overflow:hidden;
+  }
+  .capa-foto {
+    flex:1; min-height:55vh;
+    background:#162333 center/cover no-repeat;
+    position:relative;
+  }
+  .capa-foto::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(to bottom, transparent 40%, rgba(13,27,42,.95) 100%);
+  }
+  .capa-overlay {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:32px 36px; z-index:2;
+  }
+  .capa-tag {
+    display:inline-block; background:#C9A84C; color:#0D1B2A;
+    font-size:11px; font-weight:800; letter-spacing:1.5px;
+    text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:14px;
+  }
+  .capa-nome {
+    font-size:32px; font-weight:900; color:#fff; line-height:1.2; margin-bottom:10px;
+  }
+  .capa-sub {
+    font-size:14px; color:#C9A84C; letter-spacing:.5px;
+  }
+  .capa-bottom {
+    padding:28px 36px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-top:1px solid rgba(201,168,76,.2);
+  }
+  .capa-preco { font-size:28px; font-weight:900; color:#C9A84C; }
+  .capa-logo { font-size:18px; font-weight:900; color:#C9A84C; text-align:right; }
+  .capa-logo small { display:block; font-size:11px; color:#9BA8B5; font-weight:400; letter-spacing:2px; }
+
+  /* ── CONTEÚDO ── */
+  .content { padding:40px 40px 32px; }
+  .section-title {
+    font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:#C9A84C; margin-bottom:14px; padding-bottom:7px;
+    border-bottom:2px solid #C9A84C33;
+  }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
+  .box {
+    background:#f8f6f2; border-radius:10px; padding:14px 16px;
+    border-left:3px solid #C9A84C;
+  }
+  .box.green { border-color:#4CAF82; background:#f0faf5; }
+  .box.highlight { background:#0D1B2A; }
+  .box-label { font-size:9px; color:#888; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px; }
+  .box-val { font-size:20px; font-weight:800; color:#1a1a1a; }
+  .box.highlight .box-label { color:#9BA8B5; }
+  .box.highlight .box-val { color:#C9A84C; }
+  .box.green .box-val { color:#2d7a52; }
+  .entrada-box {
+    background:${entradaZero?'#f0faf5':'#fffbf0'};
+    border:2px solid ${entradaZero?'#4CAF82':'#C9A84C'};
+    border-radius:12px; padding:20px 24px; margin-bottom:28px; text-align:center;
+  }
+  .entrada-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; }
+  .entrada-val { font-size:36px; font-weight:900; color:${entradaZero?'#2d7a52':'#8B6F2E'}; }
+  .entrada-sub { font-size:12px; color:#888; margin-top:4px; }
+  .diffs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+  .diff-chip { background:#f0ede8; border:1px solid #d4c9a8; border-radius:20px; padding:6px 14px; font-size:12px; color:#5a4a2a; }
+  .obs-box { background:#f8f6f2; border-radius:10px; padding:16px 18px; margin-bottom:28px; font-size:13px; line-height:1.8; color:#333; }
+  .contato-box {
+    background:#0D1B2A; border-radius:12px; padding:20px 24px;
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:28px;
+  }
+  .contato-nome { font-size:15px; font-weight:700; color:#fff; }
+  .contato-tel { font-size:13px; color:#C9A84C; margin-top:2px; }
+  .contato-wpp {
+    background:#25D366; color:#fff; border:none; border-radius:9px;
+    padding:10px 18px; font-size:13px; font-weight:700; text-decoration:none;
+    display:inline-block;
+  }
+  .footer-strip {
+    background:#0D1B2A; padding:16px 40px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .footer-strip span { font-size:11px; color:#9BA8B5; }
+  .btn-print { background:#C9A84C; color:#0D1B2A; border:none; border-radius:8px; padding:12px 26px; font-size:14px; font-weight:800; cursor:pointer; }
+  .btn-wpp-share { background:#25D366; color:#fff; border:none; border-radius:8px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+</style>
+</head>
+<body>
+
+<!-- ══ CAPA ══ -->
+<div class="capa">
+  <div class="capa-foto" style="${fotoHero?'background-image:url('+fotoHero+')':''}">
+    <div class="capa-overlay">
+      <div class="capa-tag">📍 ${im.setor||'Goiânia - GO'}</div>
+      <div class="capa-nome">${im.nome}</div>
+      <div class="capa-sub">${im.tipo||''}${im.quartos?' · '+im.quartos+' quartos':''}${im.area?' · '+im.area+'m²':''}</div>
+    </div>
+  </div>
+  <div class="capa-bottom">
+    <div>
+      <div style="font-size:11px;color:#9BA8B5;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Valor de Venda</div>
+      <div class="capa-preco">${fmtV(im.valor)}</div>
+      ${entradaZero?'<div style="font-size:12px;color:#4CAF82;margin-top:4px;font-weight:700;">🚀 Entrada Zero — banco financia tudo!</div>':''}
+    </div>
+    <div class="capa-logo">M&E Imóveis<small>SISTEMA DE PARCERIAS</small></div>
+  </div>
+</div>
+
+<!-- ══ CONTEÚDO ══ -->
+<div class="content">
+
+  <div class="no-print" style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn-print" onclick="window.print()">🖨️ Salvar como PDF</button>
+    <a href="https://wa.me/?text=${encodeURIComponent('📄 Book do imóvel: '+im.nome+' — '+fmtV(im.valor)+' | '+im.setor)}" target="_blank" class="btn-wpp-share">💬 Compartilhar no WhatsApp</a>
+    <button onclick="window.close()" style="background:none;border:1px solid #ccc;border-radius:8px;padding:12px 18px;font-size:13px;cursor:pointer;">Fechar</button>
+  </div>
+
+  <!-- FINANCIAMENTO -->
+  <div class="section-title">💰 Valores & Financiamento</div>
+  <div class="grid3">
+    <div class="box highlight">
+      <div class="box-label">Valor de Venda</div>
+      <div class="box-val">${fmtV(im.valor)}</div>
+    </div>
+    <div class="box green">
+      <div class="box-label">Avaliação Bancária</div>
+      <div class="box-val">${fmtV(im.avaliacao)}</div>
+    </div>
+    <div class="box green">
+      <div class="box-label">Banco Financia (80%)</div>
+      <div class="box-val">${im.avaliacao ? fmtV(financiado) : '—'}</div>
+    </div>
+  </div>
+
+  <div class="entrada-box">
+    <div class="entrada-label">${entradaZero ? '🚀 Entrada necessária' : '🔑 Entrada necessária do cliente'}</div>
+    <div class="entrada-val">${entradaZero ? 'R$ 0 — ENTRADA ZERO' : fmtV(entrada)}</div>
+    <div class="entrada-sub">${entradaZero ? 'O banco financia 100% do valor de venda! Ideal para FGTS e MCMV.' : (im.avaliacao ? pctEntrada+'% do valor de venda · banco cobre o restante' : '')}</div>
+  </div>
+
+  <!-- DIFERENCIAIS -->
+  ${diffs.length ? `<div class="section-title">🏠 Características</div>
+  <div class="diffs">${diffs.map(d=>`<span class="diff-chip">${d}</span>`).join('')}</div>` : ''}
+
+  <!-- GATILHOS -->
+  ${(im.gatilhos||[]).length ? `<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:28px;">${gatilhosHtml}</div>` : ''}
+
+  <!-- DESCRIÇÃO -->
+  ${im.obs||im.msgDivulgacao ? `<div class="section-title">✨ Sobre o Imóvel</div>
+  <div class="obs-box">${im.msgDivulgacao||im.obs}</div>` : ''}
+
+  <!-- GALERIA -->
+  ${galHtml ? `<div class="section-title">📸 Galeria de Fotos</div>${galHtml}` : ''}
+
+  <!-- CONTATO -->
+  <div class="section-title">📞 Entre em Contato</div>
+  <div class="contato-box">
+    <div>
+      <div class="contato-nome">M&E Imóveis</div>
+      <div class="contato-tel">(62) 98186-0902</div>
+      <div style="font-size:11px;color:#9BA8B5;margin-top:3px;">Goiânia - GO</div>
+    </div>
+    <a href="https://wa.me/5562981860902?text=${encodeURIComponent('Olá! Vi o book do imóvel '+im.nome+' e tenho interesse. Pode me dar mais informações?')}" class="contato-wpp" target="_blank">💬 WhatsApp</a>
+  </div>
+
+</div>
+
+<!-- ══ RODAPÉ ══ -->
+<div class="footer-strip">
+  <span>M&E Imóveis — Sistema de Parcerias · Goiânia - GO</span>
+  <span>📄 Book gerado em ${hoje}</span>
+  <span>(62) 98186-0902</span>
+</div>
+
+</body>
+</html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url,'_blank');
+  if(!win) toast('Permita pop-ups para abrir o book.');
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
+window.gerarBookImovel = gerarBookImovel;
+
+function abrirPaginaPublica(id){
+  const im = cache.find(i=>i.id===id); if(!im) return;
+  const {entrada, entradaZero, financiado} = calcEntrada(im);
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${im.nome} — M&E Imóveis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0D1B2A;color:#E8E0D0;min-height:100vh;}
+.hero{background:linear-gradient(135deg,#162333,#0D1B2A);border-bottom:1px solid #2A3F57;padding:32px 20px 24px;}
+.logo{font-family:'Playfair Display',serif;font-size:14px;color:#C9A84C;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.nome{font-family:'Playfair Display',serif;font-size:26px;color:#F5F0E8;font-weight:900;line-height:1.2;margin-bottom:8px;}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-gold{background:rgba(201,168,76,.2);color:#C9A84C;border:1px solid rgba(201,168,76,.4);}
+.badge-green{background:rgba(76,175,130,.2);color:#4CAF82;border:1px solid rgba(76,175,130,.4);}
+.badge-blue{background:rgba(110,181,255,.15);color:#6EB5FF;border:1px solid rgba(110,181,255,.3);}
+.preco{font-size:32px;font-weight:700;color:#C9A84C;font-family:'Playfair Display',serif;}
+.container{max-width:600px;margin:0 auto;padding:20px 16px 60px;}
+.card{background:#162333;border:1px solid #2A3F57;border-radius:14px;padding:18px;margin-bottom:14px;}
+.card-title{font-size:11px;color:#9BA8B5;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{background:#1E2F42;border-radius:10px;padding:12px;}
+.stat-label{font-size:9px;color:#9BA8B5;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.stat-val{font-size:17px;font-weight:700;}
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.foto-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;cursor:pointer;}
+.cta{position:fixed;bottom:0;left:0;right:0;background:rgba(13,27,42,.97);border-top:1px solid #2A3F57;padding:12px 16px;display:flex;gap:10px;}
+.btn-wpp{flex:1;background:#25D366;color:#fff;border:none;border-radius:11px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;display:block;}
+.btn-tel{background:#1E2F42;border:1px solid #2A3F57;color:#E8E0D0;border-radius:11px;padding:14px 18px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="container" style="padding:0 16px;">
+    <div class="logo">M&E Imóveis</div>
+    <div class="nome">${im.nome}</div>
+    <div class="badges">
+      <span class="badge badge-gold">📍 ${im.setor}</span>
+      ${im.tipo?`<span class="badge badge-blue">${im.tipo}</span>`:''}
+      ${im.quartos?`<span class="badge badge-blue">🛏️ ${im.quartos} quartos</span>`:''}
+      ${im.area?`<span class="badge badge-blue">📐 ${im.area}m²</span>`:''}
+      ${(im.gatilhos||[]).map(g=>`<span class="badge badge-green">${g}</span>`).join('')}
+      ${entradaZero?'<span class="badge badge-green">🚀 ENTRADA ZERO</span>':''}
+    </div>
+    <div class="preco">${fmtCur(im.valor)}</div>
+  </div>
+</div>
+<div class="container">
+  ${(im.fotos||[]).length?`<div class="card"><div class="card-title">Fotos</div><div class="foto-grid">${im.fotos.map(f=>`<img src="${f}" onerror="this.style.display='none'" loading="lazy">`).join('')}</div></div>`:''}
+  <div class="card">
+    <div class="card-title">Financiamento</div>
+    <div class="grid2">
+      <div class="stat-box"><div class="stat-label">Avaliação Bancária</div><div class="stat-val" style="color:#4CAF82;">${im.avaliacao?fmtCur(im.avaliacao):'—'}</div></div>
+      <div class="stat-box"><div class="stat-label">Banco Financia</div><div class="stat-val" style="color:#4CAF82;">${im.avaliacao?fmtCur(financiado):'—'}</div></div>
+      <div class="stat-box" style="grid-column:1/-1;background:${entradaZero?'rgba(76,175,130,.15)':'rgba(201,168,76,.1)'};border:1px solid ${entradaZero?'rgba(76,175,130,.4)':'rgba(201,168,76,.3)'};">
+        <div class="stat-label">Entrada necessária</div>
+        <div class="stat-val" style="font-size:22px;color:${entradaZero?'#4CAF82':'#C9A84C'};">${entradaZero?'R$ 0 — ENTRADA ZERO 🚀':fmtCur(entrada)}</div>
+      </div>
+    </div>
+  </div>
+  ${im.obs?`<div class="card"><div class="card-title">Sobre o imóvel</div><p style="font-size:13px;line-height:1.7;color:#E8E0D0;">${im.obs}</p></div>`:''}
+  <div style="height:80px;"></div>
+</div>
+<div class="cta">
+  <a href="https://wa.me/5562981860902?text=${encodeURIComponent('Olá! Vi o imóvel '+im.nome+' e tenho interesse. Pode me dar mais informações?')}" class="btn-wpp" target="_blank">💬 Falar no WhatsApp</a>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if(!win) toast('Permita pop-ups para abrir a página pública.');
+  setTimeout(()=>URL.revokeObjectURL(url), 60000);
+}
+window.abrirPaginaPublica = abrirPaginaPublica;
+
+// ══════════════════════════════════════
+// NOTIFICAÇÕES PUSH
+// ══════════════════════════════════════
+async function pedirPermissaoNotificacao(){
+  if(!('Notification' in window)){ toast('Seu navegador não suporta notificações.'); return; }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){
+    toast('🔔 Notificações ativadas!');
+    new Notification('M&E Imóveis', {body:'Você será avisado quando entrar busca compatível!', icon:'/icons/icon-192.png'});
+    localStorage.setItem('notif_ativadas','1');
+  } else {
+    toast('Notificações bloqueadas. Habilite nas configurações do navegador.');
+  }
+}
+window.pedirPermissaoNotificacao = pedirPermissaoNotificacao;
+
+function enviarNotificacao(titulo, corpo){
+  if(Notification.permission !== 'granted') return;
+  new Notification(titulo, {body: corpo, icon:'/icons/icon-192.png', badge:'/icons/icon-192.png'});
+}
+window.enviarNotificacao = enviarNotificacao;
+
+// Patch verificarAlertas para notificar
+const _verificarAlertasOrig = window.verificarAlertas;
+window.verificarAlertas = async function(){
+  await _verificarAlertasOrig();
+  const alertas = alertasGetAll();
+  const novos = alertas.reduce((n,a)=>(a.matches||[]).filter(m=>!m.visto).length+n, 0);
+  if(novos > 0){
+    enviarNotificacao('🔔 M&E Imóveis — Match!', `${novos} imóvel(is) compatível(is) com suas buscas salvas!`);
+  }
+};
+
+// ══════════════════════════════════════
+// BACKUP AUTOMÁTICO (Excel/CSV)
+// ══════════════════════════════════════
+const BACKUP_KEY = 'me_backup_imoveis';
+
+function backupAutomatico(){
+  if(!cache.length) return;
+  const dados = {
+    data: new Date().toISOString(),
+    total: cache.length,
+    imoveis: cache
+  };
+  localStorage.setItem(BACKUP_KEY, JSON.stringify(dados));
+}
+
+function backupExcel(){
+  if(!cache.length){ toast('Nenhum imóvel para exportar.'); return; }
+
+  const fmtV = v => v ? 'R$ '+Number(v).toLocaleString('pt-BR') : '';
+  const {entrada:e0} = {entrada:0};
+
+  const linhas = [
+    ['Nome','Tipo','Setor','Quartos','Área m²','Valor','Avaliação','Banco Financia','Entrada','Gatilhos','Financiamento','Permuta','Status','Proprietário','Telefone','Obs'],
+    ...cache.map(im=>{
+      const {financiado,entrada,entradaZero} = calcEntrada(im);
+      return [
+        im.nome||'',
+        im.tipo||'',
+        im.setor||'',
+        im.quartos||0,
+        im.area||0,
+        im.valor||0,
+        im.avaliacao||0,
+        financiado||0,
+        entradaZero ? 0 : (entrada||0),
+        (im.gatilhos||[]).join(', '),
+        im.financiamento||'',
+        im.permuta||'',
+        im.status||'ativo',
+        im.contatoNome||'',
+        im.contatoTel||'',
+        im.obs||''
+      ];
+    })
+  ];
+
+  // Build CSV
+  const csv = linhas.map(row =>
+    row.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')
+  ).join('\n');
+
+  const bom = '\uFEFF'; // UTF-8 BOM para Excel reconhecer acentos
+  const blob = new Blob([bom+csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'ME_Imoveis_Backup_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('💾 Backup exportado! Abra no Excel.');
+}
+window.backupExcel = backupExcel;
+
+// ══════════════════════════════════════
+// RELATÓRIOS EM PDF
+// ══════════════════════════════════════
+function gerarRelatorioPDF(tipo){
+  if(tipo === 'carteira') gerarPDFCarteira();
+  else if(tipo === 'parcerias') gerarPDFParcerias();
+}
+window.gerarRelatorioPDF = gerarRelatorioPDF;
+
+function gerarPDFCarteira(){
+  if(!cache.length){ toast('Nenhum imóvel cadastrado.'); return; }
+
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const totalImoveis = cache.length;
+  const totalAtivos  = cache.filter(i=>i.status!=='vendido').length;
+  const totalVendidos= cache.filter(i=>i.status==='vendido').length;
+  const totalReservados = cache.filter(i=>i.status==='reservado').length;
+  const valorTotal   = cache.reduce((s,i)=>s+(i.valor||0),0);
+  const valorMedio   = valorTotal/totalImoveis;
+  const comEntrada   = cache.filter(i=>i.avaliacao&&i.avaliacao>i.valor).length;
+
+  // Por setor
+  const porSetor = {};
+  cache.forEach(i=>{ const s=i.setor||'Outro'; porSetor[s]=(porSetor[s]||0)+1; });
+  const setoresSort = Object.entries(porSetor).sort((a,b)=>b[1]-a[1]);
+
+  // Por tipo
+  const porTipo = {};
+  cache.forEach(i=>{ const t=i.tipo||'Outro'; porTipo[t]=(porTipo[t]||0)+1; });
+
+  // Buscas mais frequentes
+  const hist = JSON.parse(localStorage.getItem('me_historico_buscas')||'[]');
+  const termosFreq = {};
+  hist.forEach(h=>{
+    const palavras = (h.msg||'').toLowerCase().split(/\s+/).filter(p=>p.length>4);
+    palavras.forEach(p=>{ termosFreq[p]=(termosFreq[p]||0)+1; });
+  });
+  const topTermos = Object.entries(termosFreq).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  const fmtCurPDF = v => v ? 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0}) : '—';
+  const fmtPct = (n,total) => total>0 ? Math.round(n/total*100)+'%' : '0%';
+
+  const linhasImoveis = cache.map((im,i)=>{
+    const {entrada,entradaZero,financiado} = calcEntrada(im);
+    const statusCor = im.status==='vendido'?'#E05555':im.status==='reservado'?'#6EB5FF':'#4CAF82';
+    const statusLabel = im.status==='vendido'?'Vendido':im.status==='reservado'?'Reservado':'Disponível';
+    return `<tr style="background:${i%2===0?'#f8f6f2':'#fff'};">
+      <td style="padding:8px 10px;font-weight:600;color:#1a1a1a;">${im.nome||'—'}</td>
+      <td style="padding:8px 10px;color:#444;">${im.tipo||'—'}</td>
+      <td style="padding:8px 10px;color:#444;">${im.setor||'—'}</td>
+      <td style="padding:8px 10px;text-align:center;color:#444;">${im.quartos||'—'}${im.area?' / '+im.area+'m²':''}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700;color:#8B6F2E;">${fmtCurPDF(im.valor)}</td>
+      <td style="padding:8px 10px;text-align:right;color:#2d7a52;">${fmtCurPDF(im.avaliacao)}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700;color:${entradaZero?'#2d7a52':'#8B6F2E'};">${entradaZero?'R$ 0 ✓':fmtCurPDF(entrada)}</td>
+      <td style="padding:8px 10px;text-align:center;"><span style="background:${statusCor}22;color:${statusCor};border:1px solid ${statusCor}55;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700;">${statusLabel}</span></td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Carteira — M&E Imóveis</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background:#fff; color:#1a1a1a; }
+  @media print {
+    .no-print { display:none !important; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+  .header { background:linear-gradient(135deg,#0D1B2A,#162333); color:#fff; padding:32px 40px; }
+  .logo { font-size:28px; font-weight:900; color:#C9A84C; letter-spacing:1px; margin-bottom:4px; }
+  .logo small { font-size:13px; color:#9BA8B5; font-weight:400; display:block; letter-spacing:2px; }
+  .report-title { font-size:18px; color:#E8E0D0; margin-top:12px; }
+  .report-date { font-size:12px; color:#9BA8B5; margin-top:4px; }
+  .container { max-width:1100px; margin:0 auto; padding:30px 32px; }
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  .stat { background:#f8f6f2; border-left:4px solid #C9A84C; border-radius:8px; padding:16px; }
+  .stat-n { font-size:26px; font-weight:900; color:#C9A84C; }
+  .stat-l { font-size:11px; color:#666; text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+  .section-title { font-size:16px; font-weight:700; color:#0D1B2A; border-bottom:2px solid #C9A84C; padding-bottom:8px; margin-bottom:16px; margin-top:28px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  thead tr { background:#0D1B2A; color:#fff; }
+  thead th { padding:10px 10px; text-align:left; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .bar-wrap { background:#e8e4de; border-radius:4px; height:10px; overflow:hidden; margin-top:4px; }
+  .bar-fill { background:#C9A84C; height:100%; border-radius:4px; }
+  .bar-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .bar-label { font-size:12px; color:#444; width:160px; flex-shrink:0; }
+  .bar-n { font-size:12px; color:#888; width:30px; text-align:right; flex-shrink:0; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .btn-print { background:#C9A84C; color:#0D1B2A; border:none; border-radius:8px; padding:11px 24px; font-size:14px; font-weight:700; cursor:pointer; margin-right:10px; }
+  .footer { text-align:center; font-size:11px; color:#999; padding:20px 0; border-top:1px solid #eee; margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">M&E Imóveis<small>SISTEMA DE PARCERIAS</small></div>
+  <div class="report-title">📊 Relatório de Carteira de Imóveis</div>
+  <div class="report-date">Gerado em ${hoje} · ${totalImoveis} imóveis</div>
+</div>
+<div class="container">
+  <div class="no-print" style="margin-bottom:20px;">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <button onclick="window.close()" style="background:none;border:1px solid #ccc;border-radius:8px;padding:11px 20px;cursor:pointer;font-size:13px;">Fechar</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-n">${totalImoveis}</div><div class="stat-l">Total de Imóveis</div></div>
+    <div class="stat" style="border-color:#4CAF82;"><div class="stat-n" style="color:#4CAF82;">${totalAtivos}</div><div class="stat-l">Disponíveis</div></div>
+    <div class="stat" style="border-color:#6EB5FF;"><div class="stat-n" style="color:#6EB5FF;">${totalReservados}</div><div class="stat-l">Reservados</div></div>
+    <div class="stat" style="border-color:#E05555;"><div class="stat-n" style="color:#E05555;">${totalVendidos}</div><div class="stat-l">Vendidos</div></div>
+    <div class="stat"><div class="stat-n">${fmtCurPDF(valorMedio)}</div><div class="stat-l">Valor Médio</div></div>
+    <div class="stat"><div class="stat-n">${fmtCurPDF(valorTotal)}</div><div class="stat-l">Portfólio Total</div></div>
+    <div class="stat" style="border-color:#4CAF82;"><div class="stat-n" style="color:#4CAF82;">${comEntrada}</div><div class="stat-l">Com Entrada Facilitada</div></div>
+    <div class="stat"><div class="stat-n">${hist.length}</div><div class="stat-l">Buscas Recebidas</div></div>
+  </div>
+
+  <!-- ANÁLISE -->
+  <div class="grid2">
+    <div>
+      <div class="section-title">🏘️ Imóveis por Setor</div>
+      ${setoresSort.map(([s,n])=>`
+        <div class="bar-row">
+          <div class="bar-label">${s}</div>
+          <div style="flex:1;"><div class="bar-wrap"><div class="bar-fill" style="width:${fmtPct(n,totalImoveis)}"></div></div></div>
+          <div class="bar-n">${n}</div>
+        </div>`).join('')}
+    </div>
+    <div>
+      <div class="section-title">🏡 Imóveis por Tipo</div>
+      ${Object.entries(porTipo).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+        <div class="bar-row">
+          <div class="bar-label">${t}</div>
+          <div style="flex:1;"><div class="bar-wrap"><div class="bar-fill" style="width:${fmtPct(n,totalImoveis)}"></div></div></div>
+          <div class="bar-n">${n}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  ${topTermos.length?`
+  <div class="section-title">🔍 Termos Mais Buscados pelos Corretores</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+    ${topTermos.map(([t,n])=>`<span style="background:#f0ede8;border:1px solid #d4c9a8;border-radius:20px;padding:5px 14px;font-size:12px;color:#5a4a2a;"><strong>${t}</strong> <span style="color:#999;">${n}x</span></span>`).join('')}
+  </div>`:''}
+
+  <!-- TABELA COMPLETA -->
+  <div class="section-title">📋 Lista Completa de Imóveis</div>
+  <table>
+    <thead><tr>
+      <th>Nome / Identificação</th><th>Tipo</th><th>Setor</th><th>Qtd/Área</th>
+      <th style="text-align:right;">Valor</th><th style="text-align:right;">Avaliação</th>
+      <th style="text-align:right;">Entrada</th><th style="text-align:center;">Status</th>
+    </tr></thead>
+    <tbody>${linhasImoveis}</tbody>
+  </table>
+
+  <div class="footer">M&E Imóveis — Sistema de Parcerias · Goiânia - GO · (62) 98186-0902 · Relatório gerado em ${hoje}</div>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url,'_blank');
+  if(!win) toast('Permita pop-ups para gerar o PDF.');
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
+
+function gerarPDFParcerias(){
+  const parcerias = crmGetAll ? crmGetAll() : [];
+  if(!parcerias.length){ toast('Nenhuma parceria registrada no CRM.'); return; }
+
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const total = parcerias.length;
+  const enviadas   = parcerias.filter(p=>p.status==='Enviada').length;
+  const negociando = parcerias.filter(p=>p.status==='Negociando').length;
+  const fechadas   = parcerias.filter(p=>p.status==='Fechado').length;
+  const perdidas   = parcerias.filter(p=>p.status==='Perdido').length;
+  const taxaConv   = total>0 ? Math.round(fechadas/total*100) : 0;
+
+  // Comissão total estimada
+  const comissaoTotal = parcerias
+    .filter(p=>p.status==='Fechado'&&p.imovelValor)
+    .reduce((s,p)=>s+(p.imovelValor*0.05/2),0);
+
+  // Por canal
+  const porCanal = {};
+  parcerias.forEach(p=>{ const c=p.canal||'Direto'; porCanal[c]=(porCanal[c]||0)+1; });
+
+  const statusCores = {Enviada:'#C9A84C',Negociando:'#6EB5FF',Fechado:'#4CAF82',Perdido:'#E05555'};
+  const fmtCurPDF = v => v ? 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0}) : '—';
+
+  const linhasParc = parcerias.map((p,i)=>{
+    const d = new Date(p.data);
+    const quando = d.toLocaleDateString('pt-BR');
+    const cor = statusCores[p.status]||'#999';
+    return `<tr style="background:${i%2===0?'#f8f6f2':'#fff'};">
+      <td style="padding:8px 10px;font-weight:600;color:#1a1a1a;">${p.corretor||'—'}</td>
+      <td style="padding:8px 10px;color:#444;">${p.imovelNome||'—'}</td>
+      <td style="padding:8px 10px;color:#444;">${p.imovelSetor||'—'}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700;color:#8B6F2E;">${fmtCurPDF(p.imovelValor)}</td>
+      <td style="padding:8px 10px;color:#444;">${p.canal||'—'}</td>
+      <td style="padding:8px 10px;text-align:center;"><span style="background:${cor}22;color:${cor};border:1px solid ${cor}55;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700;">${p.status}</span></td>
+      <td style="padding:8px 10px;color:#666;font-size:11px;">${quando}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Parcerias — M&E Imóveis</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1a1a1a}
+  @media print{.no-print{display:none!important}body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+  .header{background:linear-gradient(135deg,#0D1B2A,#162333);color:#fff;padding:32px 40px}
+  .logo{font-size:28px;font-weight:900;color:#C9A84C;letter-spacing:1px;margin-bottom:4px}
+  .logo small{font-size:13px;color:#9BA8B5;font-weight:400;display:block;letter-spacing:2px}
+  .container{max-width:1100px;margin:0 auto;padding:30px 32px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .stat{background:#f8f6f2;border-left:4px solid #C9A84C;border-radius:8px;padding:16px}
+  .stat-n{font-size:26px;font-weight:900;color:#C9A84C}
+  .stat-l{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+  .section-title{font-size:16px;font-weight:700;color:#0D1B2A;border-bottom:2px solid #C9A84C;padding-bottom:8px;margin-bottom:16px;margin-top:28px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead tr{background:#0D1B2A;color:#fff}
+  thead th{padding:10px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  .funil{display:flex;gap:0;margin-bottom:24px;border-radius:10px;overflow:hidden}
+  .funil-step{flex:1;padding:18px 12px;text-align:center}
+  .funil-n{font-size:24px;font-weight:900}
+  .funil-l{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-top:3px;opacity:.8}
+  .btn-print{background:#C9A84C;color:#0D1B2A;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-right:10px}
+  .footer{text-align:center;font-size:11px;color:#999;padding:20px 0;border-top:1px solid #eee;margin-top:32px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">M&E Imóveis<small>SISTEMA DE PARCERIAS</small></div>
+  <div style="font-size:18px;color:#E8E0D0;margin-top:12px;">🤝 Relatório de Parcerias CRM</div>
+  <div style="font-size:12px;color:#9BA8B5;margin-top:4px;">Gerado em ${hoje} · ${total} parcerias</div>
+</div>
+<div class="container">
+  <div class="no-print" style="margin-bottom:20px;">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <button onclick="window.close()" style="background:none;border:1px solid #ccc;border-radius:8px;padding:11px 20px;cursor:pointer;font-size:13px;">Fechar</button>
+  </div>
+
+  <!-- FUNIL -->
+  <div class="section-title">📊 Funil de Conversão</div>
+  <div class="funil">
+    <div class="funil-step" style="background:#C9A84C22;"><div class="funil-n" style="color:#C9A84C;">${enviadas}</div><div class="funil-l" style="color:#C9A84C;">Enviadas</div></div>
+    <div class="funil-step" style="background:#6EB5FF22;"><div class="funil-n" style="color:#6EB5FF;">${negociando}</div><div class="funil-l" style="color:#6EB5FF;">Negociando</div></div>
+    <div class="funil-step" style="background:#4CAF8222;"><div class="funil-n" style="color:#4CAF82;">${fechadas}</div><div class="funil-l" style="color:#4CAF82;">Fechadas</div></div>
+    <div class="funil-step" style="background:#E0555522;"><div class="funil-n" style="color:#E05555;">${perdidas}</div><div class="funil-l" style="color:#E05555;">Perdidas</div></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Total Parcerias</div></div>
+    <div class="stat" style="border-color:#4CAF82;"><div class="stat-n" style="color:#4CAF82;">${taxaConv}%</div><div class="stat-l">Taxa de Conversão</div></div>
+    <div class="stat" style="border-color:#4CAF82;"><div class="stat-n" style="color:#4CAF82;">${comissaoTotal>0?'R$'+Math.round(comissaoTotal/1000)+'k':'—'}</div><div class="stat-l">Sua Comissão (est. 5%/2)</div></div>
+    <div class="stat"><div class="stat-n">${Object.keys(porCanal).length}</div><div class="stat-l">Canais Utilizados</div></div>
+  </div>
+
+  <!-- POR CANAL -->
+  <div class="section-title">📱 Parcerias por Canal</div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+    ${Object.entries(porCanal).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`
+      <div style="background:#f8f6f2;border:1px solid #e0d8c8;border-radius:8px;padding:12px 18px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:#C9A84C;">${n}</div>
+        <div style="font-size:11px;color:#666;">${c}</div>
+      </div>`).join('')}
+  </div>
+
+  <!-- TABELA PARCERIAS -->
+  <div class="section-title">📋 Histórico Completo de Parcerias</div>
+  <table>
+    <thead><tr>
+      <th>Corretor Parceiro</th><th>Imóvel</th><th>Setor</th>
+      <th style="text-align:right;">Valor</th><th>Canal</th>
+      <th style="text-align:center;">Status</th><th>Data</th>
+    </tr></thead>
+    <tbody>${linhasParc}</tbody>
+  </table>
+
+  <div class="footer">M&E Imóveis — Sistema de Parcerias · Goiânia - GO · (62) 98186-0902 · Relatório gerado em ${hoje}</div>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url,'_blank');
+  if(!win) toast('Permita pop-ups para gerar o PDF.');
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
 
 // ══════════════════════════════════════
 // DASHBOARD
@@ -2221,7 +3408,8 @@ function renderCrm(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
         <div>
           <div style="font-weight:700;font-size:13px;color:var(--cream);">👤 ${p.corretor}</div>
-          ${p.tel?`<div style="font-size:11px;color:var(--text-dim);">📱 ${p.tel.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3')} · ${p.canal||''}</div>`:''}
+          ${p.tel&&isAdmin?`<div style="font-size:11px;color:var(--text-dim);">📱 ${p.tel.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3')} · ${p.canal||''}</div>`:''}
+          ${p.tel&&!isAdmin?`<div style="font-size:11px;color:var(--text-dim);">🔒 Telefone oculto</div>`:''}
         </div>
         <span style="background:${cor}22;color:${cor};border:1px solid ${cor}55;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;">${statusEmoji[p.status]||''} ${p.status}</span>
       </div>
@@ -2232,11 +3420,12 @@ function renderCrm(){
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px;">
         <div style="font-size:10px;color:var(--text-dim);">🕐 ${quando}</div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;">
-          ${p.tel?`<a href="https://wa.me/55${p.tel}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;font-size:11px;">📲 WhatsApp</a>`:''}
+          ${p.tel&&isAdmin?`<a href="https://wa.me/55${p.tel}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;font-size:11px;">📲 WhatsApp</a>`:''}
+          <button class="btn btn-outline btn-sm" style="font-size:11px;color:#7BB8F5;border-color:#7BB8F5;" onclick="agendarGoogleCalendar(${p.id})">📅 Agendar</button>
           ${p.status!=='Negociando'?`<button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="crmSetStatus(${p.id},'Negociando')">🔄 Negociando</button>`:''}
           ${p.status!=='Fechado'?`<button class="btn btn-outline btn-sm" style="font-size:11px;color:var(--green);border-color:var(--green);" onclick="crmSetStatus(${p.id},'Fechado')">✅ Fechado</button>`:''}
           ${p.status!=='Perdido'?`<button class="btn btn-outline btn-sm" style="font-size:11px;color:var(--red);border-color:var(--red);" onclick="crmSetStatus(${p.id},'Perdido')">❌ Perdido</button>`:''}
-          <button class="btn btn-danger btn-sm" onclick="crmDelete(${p.id})">🗑️</button>
+          ${isAdmin?`<button class="btn btn-danger btn-sm" onclick="crmDelete(${p.id})">🗑️</button>`:''}
         </div>
       </div>
     </div>`;
@@ -2314,6 +3503,98 @@ async function verificarAlertas(){
   if(novosMatch>0) toast(`🔔 ${novosMatch} alerta(s) de match atualizado(s)!`, 4000);
 }
 window.verificarAlertas = verificarAlertas;
+
+// ── GOOGLE CALENDAR — AGENDAR VISITA/CONTATO ──
+function agendarGoogleCalendar(pId){
+  const p = crmGetAll().find(x=>x.id===pId);
+  if(!p){ toast('Parceria não encontrada'); return; }
+
+  // Abre modal para escolher data/hora antes de ir ao Google
+  const modal = document.createElement('div');
+  modal.id = 'cal-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:900;background:rgba(13,27,42,.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;';
+
+  // Data padrão = amanhã 09:00
+  const amanha = new Date(); amanha.setDate(amanha.getDate()+1); amanha.setHours(9,0,0,0);
+  const toISO = d => d.toISOString().slice(0,16);
+
+  modal.innerHTML = `
+    <div style="background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:18px;padding:28px 24px;width:340px;max-width:93vw;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-bottom:4px;">📅 Agendar no Google</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:18px;">Preencha os dados do evento</div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Tipo de evento</label>
+        <select id="cal-tipo" style="width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;outline:none;">
+          <option value="Visita ao imóvel">🏠 Visita ao imóvel</option>
+          <option value="Ligação de follow-up">📞 Ligação de follow-up</option>
+          <option value="Reunião de parceria">🤝 Reunião de parceria</option>
+          <option value="Apresentação do imóvel">📋 Apresentação do imóvel</option>
+          <option value="Assinatura de contrato">✍️ Assinatura de contrato</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Data e hora</label>
+        <input type="datetime-local" id="cal-dt" value="${toISO(amanha)}"
+          style="width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;outline:none;">
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Local (opcional)</label>
+        <input type="text" id="cal-local" placeholder="Ex: ${p.imovelSetor||'Goiânia'}"
+          style="width:100%;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;outline:none;">
+      </div>
+
+      <div style="display:flex;gap:9px;">
+        <button onclick="document.getElementById('cal-modal').remove()" class="btn btn-outline" style="flex:1;">Cancelar</button>
+        <button onclick="confirmarAgendamento(${pId})" class="btn btn-gold" style="flex:1;">📅 Abrir Google Agenda</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.agendarGoogleCalendar = agendarGoogleCalendar;
+
+function confirmarAgendamento(pId){
+  const p = crmGetAll().find(x=>x.id===pId);
+  if(!p) return;
+  const tipo  = document.getElementById('cal-tipo')?.value  || 'Visita ao imóvel';
+  const dtVal = document.getElementById('cal-dt')?.value;
+  const local = document.getElementById('cal-local')?.value || 'Goiânia - GO';
+
+  if(!dtVal){ toast('⚠️ Selecione a data e hora!'); return; }
+
+  const inicio = new Date(dtVal);
+  const fim    = new Date(inicio.getTime() + 60*60*1000); // +1h
+
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+
+  const titulo = `${tipo} — ${p.imovelNome||'Imóvel'} · ${p.corretor}`;
+  const descricao = [
+    `Corretor: ${p.corretor}`,
+    p.tel ? `Telefone: ${p.tel}` : '',
+    `Imóvel: ${p.imovelNome||'—'}`,
+    `Setor: ${p.imovelSetor||'—'}`,
+    p.imovelValor ? `Valor: ${fmtCur(p.imovelValor)}` : '',
+    p.obs ? `Obs: ${p.obs}` : '',
+    `Status: ${p.status}`,
+    `Canal: ${p.canal||''}`,
+    '',
+    'Gerado pelo M&E Imóveis Sistema de Parcerias'
+  ].filter(Boolean).join('\n');
+
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent(titulo)
+    + '&dates=' + fmt(inicio) + '/' + fmt(fim)
+    + '&details=' + encodeURIComponent(descricao)
+    + '&location=' + encodeURIComponent(local)
+    + '&sf=true&output=xml';
+
+  document.getElementById('cal-modal')?.remove();
+  window.open(url, '_blank');
+  toast('📅 Google Agenda aberto!');
+}
+window.confirmarAgendamento = confirmarAgendamento;
 
 // ── REGISTRAR PARCERIA VIA BOTÃO DA BUSCA ──
 function crmRegistrarDaBusca(imovelId, corretor, tel, canal){
