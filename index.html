@@ -1,76 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0D1B2A">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<title>M&E Imóveis — Sistema de Parcerias</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --gold: #C9A84C; --gold-light: #E8C97A; --gold-dim: #8B6F2E;
-  --navy: #0D1B2A; --navy-mid: #162333; --navy-soft: #1E2F42; --navy-border: #2A3F57;
-  --cream: #F5F0E8; --text: #E8E0D0; --text-dim: #9BA8B5;
-  --green: #4CAF82; --red: #E57373;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0D1B2A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>M&E Imóveis — Sistema de Parcerias Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #C9A84C; --gold-light: #E8C97A; --gold-dim: #8B6F2E;
+            --navy: #0D1B2A; --navy-mid: #162333; --navy-soft: #1E2F42; --navy-border: #2A3F57;
+            --cream: #F5F0E8; --text: #E8E0D0; --text-dim: #9BA8B5;
+            --green: #4CAF82; --red: #E57373;
+        }
 
-/* Reset & Base */
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { background: var(--navy); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; padding-bottom: 80px; }
+        /* Reset & Base */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--navy); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; padding-bottom: 80px; }
 
-/* Header & Menu */
-header { padding: 30px 20px; text-align: center; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); }
-.logo-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 5px; }
+        /* Header & Menu */
+        header { padding: 30px 20px; text-align: center; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); }
+        .logo-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 5px; }
 
-.tabs { display: flex; overflow-x: auto; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); position: sticky; top: 0; z-index: 100; scrollbar-width: none; }
-.tab { padding: 15px 20px; white-space: nowrap; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; font-weight: 500; flex: 1; text-align: center; }
-.tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(201,168,76,0.05); }
+        .tabs { display: flex; overflow-x: auto; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); position: sticky; top: 0; z-index: 100; scrollbar-width: none; }
+        .tab { padding: 15px 20px; white-space: nowrap; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; font-weight: 500; flex: 1; text-align: center; }
+        .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(201,168,76,0.05); }
 
-/* Containers */
-.view { display: none; padding: 20px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
-.view.active { display: block; }
+        /* Containers */
+        .view { display: none; padding: 20px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+        .view.active { display: block; }
 
-/* Cards & Forms */
-.card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        /* Cards & Forms */
+        .card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
 
-.input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-label { font-size: 0.75rem; font-weight: 600; color: var(--gold-light); text-transform: uppercase; }
-input, select, textarea { background: var(--navy-soft); border: 1px solid var(--navy-border); color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; }
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.75rem; font-weight: 600; color: var(--gold-light); text-transform: uppercase; }
+        input, select, textarea { background: var(--navy-soft); border: 1px solid var(--navy-border); color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; width: 100%; }
 
-/* Margem Box */
-#margem-box { display: none; background: rgba(76, 175, 130, 0.15); border: 1px solid var(--green); padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center; }
-#margem-val { font-size: 1.3rem; font-weight: 700; color: #fff; display: block; }
+        /* Margem Box */
+        #margem-box { display: none; background: rgba(76, 175, 130, 0.15); border: 1px solid var(--green); padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center; }
+        #margem-val { font-size: 1.3rem; font-weight: 700; color: #fff; display: block; }
 
-/* Buttons */
-.btn { border: none; border-radius: 8px; padding: 12px 15px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-primary { background: var(--gold); color: var(--navy); width: 100%; }
-.btn-outline { background: transparent; border: 1px solid var(--navy-border); color: var(--text); font-size: 0.85rem; }
-.btn-sm { padding: 8px 12px; font-size: 0.8rem; }
+        /* Buttons */
+        .btn { border: none; border-radius: 8px; padding: 12px 15px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--gold); color: var(--navy); width: 100%; }
+        .btn-outline { background: transparent; border: 1px solid var(--navy-border); color: var(--text); font-size: 0.85rem; }
+        .btn-sm { padding: 8px 12px; font-size: 0.8rem; }
 
-/* Imovel Card */
-.res-card { background: var(--navy-soft); border: 1px solid var(--navy-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--gold); }
-.res-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        /* Imovel Card */
+        .res-card { background: var(--navy-soft); border: 1px solid var(--navy-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--gold); position: relative; }
+        .res-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        
+        .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: bold; position: absolute; top: 10px; right: 10px; }
+        .badge-match { background: var(--green); color: #fff; }
+        .badge-vizinho { background: var(--gold); color: #000; }
 
-/* Mapa SVG */
-.mapa-container { width: 100%; background: var(--navy-mid); border-radius: 12px; padding: 10px; overflow: hidden; }
-.setor-svg { cursor: pointer; transition: 0.2s; }
-.setor-svg:hover { filter: brightness(1.3); }
+        /* Mapa SVG Styles */
+        .pin { fill: var(--gold); stroke: #fff; stroke-width: 0.5; cursor: pointer; transition: 0.3s; }
+        .pin:hover { fill: var(--green); r: 5; }
+        .pin-label { font-size: 4px; fill: var(--text-dim); pointer-events: none; text-transform: uppercase; font-weight: bold; }
+        .raio-vizinho { fill: rgba(201, 168, 76, 0.08); stroke: var(--gold-dim); stroke-dasharray: 1; stroke-width: 0.3; }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-</style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
 
 <header>
     <div class="logo-title">M&E IMÓVEIS</div>
+    <p style="color: var(--gold-light); font-size: 0.8rem; letter-spacing: 2px;">SISTEMA DE PARCERIAS</p>
 </header>
 
 <div class="tabs">
     <div class="tab active" onclick="switchTab('ia', this)">✨ IA</div>
-    <div class="tab" onclick="switchTab('busca', this)">🔍 Busca</div>
     <div class="tab" onclick="switchTab('mapa', this)">🗺️ Mapa</div>
     <div class="tab" onclick="switchTab('carteira', this)">🏠 Carteira</div>
     <div class="tab" onclick="switchTab('add', this)">➕ Novo</div>
@@ -78,59 +82,71 @@ input, select, textarea { background: var(--navy-soft); border: 1px solid var(--
 
 <div id="ia" class="view active">
     <div class="card">
-        <label>Análise Inteligente (Cole o texto do grupo)</label>
-        <textarea id="ai-input" rows="5" placeholder="Ex: Corretor busca 3/4 no Santa Fé até 320k..."></textarea>
-        <button class="btn btn-primary" style="margin-top:10px" onclick="analisarIA()">Analisar com IA</button>
+        <label>Análise Inteligente (Cole a busca do grupo)</label>
+        <textarea id="ai-input" rows="5" placeholder="Ex: Busco 3/4 no Novo Horizonte com pouca entrada..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="analisarIA()">Fazer Match Inteligente</button>
     </div>
     <div id="ai-result"></div>
 </div>
 
-<div id="busca" class="view">
-    <div class="card">
-        <div class="grid">
-            <div class="input-group">
-                <label>Setor</label>
-                <input type="text" id="b-setor" oninput="filtrar()">
-            </div>
-            <div class="input-group">
-                <label>Valor Máx</label>
-                <input type="number" id="b-valor" oninput="filtrar()">
-            </div>
-        </div>
-    </div>
-    <div id="res-busca"></div>
-</div>
-
 <div id="mapa" class="view">
-    <div class="card mapa-container">
+    <div class="card" style="padding:10px;">
         <div id="mapa-svg-box"></div>
+    </div>
+    <div id="mapa-legenda" style="font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+        Pins mostram imóveis ativos. Círculos mostram o <strong>Raio de Influência</strong>.
     </div>
 </div>
 
 <div id="carteira" class="view">
+    <div class="input-group">
+        <input type="text" id="b-setor" placeholder="Filtrar por setor..." oninput="filtrar()">
+    </div>
     <div id="lista-geral"></div>
 </div>
 
 <div id="add" class="view">
     <div class="card">
-        <div class="input-group"><label>Nome do Imóvel</label><input type="text" id="f-nome"></div>
+        <div class="input-group"><label>Nome do Imóvel</label><input type="text" id="f-nome" placeholder="Ex: Casa 3/4 Padrão Luxo"></div>
         <div class="grid">
-            <div class="input-group"><label>Setor</label><input type="text" id="f-setor"></div>
+            <div class="input-group">
+                <label>Setor</label>
+                <select id="f-setor">
+                    <option value="Residencial Santa Fé">Residencial Santa Fé</option>
+                    <option value="Setor Maysa I">Setor Maysa I</option>
+                    <option value="Novo Horizonte">Novo Horizonte</option>
+                    <option value="Vila Boa">Vila Boa</option>
+                    <option value="Jardim Itaipu">Jardim Itaipu</option>
+                    <option value="Moinho dos Ventos">Moinho dos Ventos</option>
+                    <option value="Vereda dos Buritis">Vereda dos Buritis</option>
+                </select>
+            </div>
             <div class="input-group"><label>Venda (R$)</label><input type="number" id="f-venda" oninput="calcM()"></div>
             <div class="input-group"><label>Avaliação (R$)</label><input type="number" id="f-aval" oninput="calcM()"></div>
         </div>
         <div id="margem-box">
-            <small style="color:var(--green)">🚀 Margem p/ Entrada:</small>
+            <small style="color:var(--green)">🚀 Xeque-mate: Margem p/ Entrada:</small>
             <strong id="margem-val">R$ 0,00</strong>
         </div>
-        <button class="btn btn-primary" onclick="salvarImovel()">Salvar Imóvel</button>
+        <button class="btn btn-primary" onclick="salvarImovel()">Salvar na Carteira</button>
     </div>
 </div>
 
 <script>
+// MATRIZ DE SETORES VIZINHOS (A INTELIGÊNCIA DO SISTEMA)
+const MAPA_VIZINHOS = {
+    "santa fé": ["della penna", "eldorado oeste", "parque oeste", "guapó", "forteville"],
+    "maysa": ["himalaia", "vera cruz", "madre germana", "pontakayana", "trindade"],
+    "novo horizonte": ["vila boa", "vila canaã", "jardim europa", "faiçalville"],
+    "itaipu": ["buena vista", "cardoso", "garavelo", "orientville"],
+    "moinho": ["atlântico", "vereda dos buritis", "alto do vale", "celina park"]
+};
+
+// BANCO DE DADOS LOCAL
 let imoveis = JSON.parse(localStorage.getItem('me_imoveis')) || [
-    { id: 1, nome: "Casa 3/4 Santa Fé", setor: "Residencial Santa Fé", venda: 309750, aval: 343291, q: 3 },
-    { id: 2, nome: "Maysa I Luxo", setor: "Setor Maysa I", venda: 650000, aval: 910000, q: 3 }
+    { id: 1, nome: "Casa 3/4 Santa Fé", setor: "Residencial Santa Fé", venda: 309750, aval: 343291, acessos: 0 },
+    { id: 2, nome: "Maysa I Luxo", setor: "Setor Maysa I", venda: 650000, aval: 910000, acessos: 0 },
+    { id: 3, nome: "Oportunidade Vila Boa", setor: "Vila Boa", venda: 350000, aval: 410000, acessos: 0 }
 ];
 
 function switchTab(id, el) {
@@ -138,7 +154,7 @@ function switchTab(id, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     el.classList.add('active');
-    if(id === 'carteira' || id === 'busca') renderLista();
+    if(id === 'carteira') renderLista();
     if(id === 'mapa') renderMapa();
 }
 
@@ -160,84 +176,145 @@ function salvarImovel() {
         nome: document.getElementById('f-nome').value,
         setor: document.getElementById('f-setor').value,
         venda: parseFloat(document.getElementById('f-venda').value),
-        aval: parseFloat(document.getElementById('f-aval').value)
+        aval: parseFloat(document.getElementById('f-aval').value),
+        acessos: 0
     };
     imoveis.push(novo);
     localStorage.setItem('me_imoveis', JSON.stringify(imoveis));
-    alert("Imóvel salvo!");
-    switchTab('carteira', document.querySelectorAll('.tab')[3]);
+    alert("Imóvel cadastrado com sucesso!");
+    switchTab('carteira', document.querySelectorAll('.tab')[2]);
 }
 
-function copiar(id, paraCliente = false) {
+function copiar(id) {
     const im = imoveis.find(i => i.id == id);
-    const m = im.aval > im.venda ? im.aval - im.venda : 0;
+    im.acessos++; // Registra o interesse para o relatório
+    localStorage.setItem('me_imoveis', JSON.stringify(imoveis));
     
-    let txt = `🏠 *${im.nome.toUpperCase()}*\n📍 ${im.setor}\n💰 Valor: ${fmt(im.venda)}`;
-    if(m > 0) txt += `\n🚀 *Diferencial:* Margem de entrada de ${fmt(m)}`;
+    const margem = im.aval - im.venda;
+    let txt = `Olá! Vi sua busca e tenho uma oportunidade M&E Imóveis que pode atender:\n\n`;
+    txt += `🏠 *${im.nome.toUpperCase()}*\n`;
+    txt += `📍 Setor: ${im.setor}\n`;
+    txt += `💰 Valor: ${fmt(im.venda)}\n`;
     
-    if(!paraCliente) txt += `\n📲 Parceria: (62) 98186-0902`;
+    if(margem > 10000) {
+        txt += `🚀 *Destaque:* Avaliação de ${fmt(im.aval)}. Margem de entrada de aprox. ${fmt(margem)}!\n`;
+    }
+    
+    txt += `\n🤝 *Parceria 50/50 garantida.*\n`;
+    txt += `📲 (62) 98186-0902`;
 
-    navigator.clipboard.writeText(txt).then(() => alert("Copiado!"));
+    navigator.clipboard.writeText(txt).then(() => alert("Script de parceria copiado!"));
 }
 
 function renderLista(filtro = imoveis) {
-    const containers = [document.getElementById('lista-geral'), document.getElementById('res-busca')];
-    containers.forEach(c => {
-        if(!c) return;
-        c.innerHTML = filtro.map(im => `
-            <div class="res-card">
-                <strong>${im.nome}</strong><br>
-                <small>${im.setor}</small><br>
-                <div style="margin:5px 0">Venda: ${fmt(im.venda)}</div>
-                <div class="res-actions">
-                    <button class="btn btn-outline btn-sm" onclick="copiar(${im.id}, true)">📱 P/ Cliente</button>
-                    <button class="btn btn-primary btn-sm" onclick="copiar(${im.id})">🤝 Parceria</button>
-                </div>
+    const container = document.getElementById('lista-geral');
+    container.innerHTML = filtro.map(im => `
+        <div class="res-card">
+            <strong>${im.nome}</strong><br>
+            <small>📍 ${im.setor}</small>
+            <div style="margin:5px 0; font-weight:600;">Venda: ${fmt(im.venda)}</div>
+            <div style="font-size:0.75rem; color:var(--text-dim)">Visto ${im.acessos} vezes</div>
+            <div class="res-actions">
+                <button class="btn btn-outline btn-sm" onclick="gerarRelatorio(${im.id})">📊 Relatório</button>
+                <button class="btn btn-primary btn-sm" onclick="copiar(${im.id})">🤝 Parceria</button>
             </div>
-        `).join('');
-    });
+        </div>
+    `).join('');
 }
 
 function filtrar() {
     const s = document.getElementById('b-setor').value.toLowerCase();
-    const v = parseFloat(document.getElementById('b-valor').value) || Infinity;
-    const res = imoveis.filter(i => i.setor.toLowerCase().includes(s) && i.venda <= v);
+    const res = imoveis.filter(i => i.setor.toLowerCase().includes(s) || i.nome.toLowerCase().includes(s));
     renderLista(res);
+}
+
+function analisarIA() {
+    const input = document.getElementById('ai-input').value.toLowerCase();
+    const resDiv = document.getElementById('ai-result');
+    if(!input) return;
+
+    resDiv.innerHTML = "<p style='text-align:center'>Analisando setores vizinhos e margens...</p>";
+    
+    setTimeout(() => {
+        let matches = [];
+        imoveis.forEach(im => {
+            const setorIm = im.setor.toLowerCase();
+            // Busca Direta
+            if (input.includes(setorIm.split(' ')[0]) || input.includes(setorIm)) {
+                matches.push({ ...im, tipo: 'match' });
+            } else {
+                // Busca por Vizinhança
+                for (let base in MAPA_VIZINHOS) {
+                    if (input.includes(base) && (MAPA_VIZINHOS[base].some(v => setorIm.includes(v)) || setorIm.includes(base))) {
+                        matches.push({ ...im, tipo: 'vizinho' });
+                    }
+                }
+            }
+        });
+
+        if(matches.length > 0) {
+            resDiv.innerHTML = "<h4>🎯 Sugestões de Match:</h4>" + matches.map(i => `
+                <div class="res-card">
+                    <span class="badge ${i.tipo === 'match' ? 'badge-match' : 'badge-vizinho'}">${i.tipo}</span>
+                    <strong>${i.nome}</strong><br>
+                    <small>📍 ${i.setor} ${i.tipo === 'vizinho' ? '(Setor Vizinho)' : ''}</small><br>
+                    <div style="color:var(--green); font-size:0.9rem; margin-top:5px">Avaliação: ${fmt(i.aval)}</div>
+                    <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%" onclick="copiar(${i.id})">Copiar Script de Parceria</button>
+                </div>
+            `).join('');
+        } else {
+            resDiv.innerHTML = "<div class='card'>Nenhum imóvel compatível agora. Tente buscar por região.</div>";
+        }
+    }, 600);
 }
 
 function renderMapa() {
     const box = document.getElementById('mapa-svg-box');
+    const coordSetores = {
+        "residencial santa fé": { x: 40, y: 30 },
+        "setor maysa i": { x: 150, y: 30 },
+        "vila boa": { x: 45, y: 70 },
+        "novo horizonte": { x: 35, y: 75 },
+        "jardim itaipu": { x: 140, y: 85 },
+        "moinho dos ventos": { x: 85, y: 55 }
+    };
+
+    let pinsSVG = "";
+    let raiosSVG = "";
+
+    imoveis.forEach(im => {
+        const coord = coordSetores[im.setor.toLowerCase()] || { x: 100, y: 60 };
+        raiosSVG += `<circle cx="${coord.x}" cy="${coord.y}" r="18" class="raio-vizinho" />`;
+        pinsSVG += `
+            <g onclick="alert('${im.nome} - ${fmt(im.venda)}')">
+                <circle cx="${coord.x}" cy="${coord.y}" r="3.5" class="pin" />
+                <text x="${coord.x + 5}" y="${coord.y + 2}" class="pin-label">${im.setor.split(' ')[1] || im.setor}</text>
+            </g>`;
+    });
+
     box.innerHTML = `
-        <svg viewBox="0 0 200 120" style="width:100%">
-            <rect x="10" y="10" width="80" height="40" rx="5" fill="var(--navy-soft)" class="setor-svg" onclick="alert('Santa Fé selecionado')" />
-            <text x="50" y="35" fill="white" font-size="6" text-anchor="middle">Santa Fé</text>
-            <rect x="100" y="10" width="80" height="40" rx="5" fill="var(--navy-soft)" class="setor-svg" />
-            <text x="140" y="35" fill="white" font-size="6" text-anchor="middle">Maysa</text>
-            <rect x="10" y="60" width="170" height="40" rx="5" fill="var(--gold-dim)" />
-            <text x="95" y="85" fill="white" font-size="8" text-anchor="middle">Mapa de Goiânia e Região</text>
-        </svg>
-    `;
+        <svg viewBox="0 0 200 120" style="width:100%; background: #0a121d; border-radius:12px;">
+            <line x1="100" y1="10" x2="100" y2="110" stroke="#1E2F42" stroke-width="0.5" stroke-dasharray="2" />
+            <line x1="10" y1="60" x2="190" y2="60" stroke="#1E2F42" stroke-width="0.5" stroke-dasharray="2" />
+            ${raiosSVG} ${pinsSVG}
+        </svg>`;
 }
 
-async function analisarIA() {
-    const input = document.getElementById('ai-input').value;
-    const resDiv = document.getElementById('ai-result');
-    resDiv.innerHTML = "<p>Analisando...</p>";
+function gerarRelatorio(id) {
+    const im = imoveis.find(i => i.id == id);
+    const msg = `📊 *RELATÓRIO DE PERFORMANCE M&E*\n\n` +
+                `Imóvel: ${im.nome}\n` +
+                `Setor: ${im.setor}\n` +
+                `---------------------------\n` +
+                `🚀 Buscas/Acessos: ${im.acessos}\n` +
+                `💰 Valor Venda: ${fmt(im.venda)}\n` +
+                `🏦 Valor Avaliação: ${fmt(im.aval)}\n\n` +
+                `*Status:* Este imóvel está sendo ofertado em grupos de parceria com IA de proximidade.`;
     
-    // Simulação de busca inteligente
-    setTimeout(() => {
-        const achados = imoveis.filter(i => input.toLowerCase().includes(i.setor.toLowerCase().split(' ')[0]));
-        if(achados.length > 0) {
-            resDiv.innerHTML = "<h4>✅ Imóveis Encontrados:</h4>" + achados.map(i => `
-                <div class="res-card">${i.nome} - ${fmt(i.venda)}</div>
-            `).join('');
-        } else {
-            resDiv.innerHTML = "<p>Nenhum imóvel compatível na carteira no momento.</p>";
-        }
-    }, 1000);
+    navigator.clipboard.writeText(msg).then(() => alert("Relatório formatado para o construtor!"));
 }
 
-// Inicialização
+// Inicializar
 renderLista();
 </script>
 </body>
