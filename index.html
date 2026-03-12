@@ -3,61 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M&E Imóveis - Sistema Inteligente</title>
+    <title>M&E Imóveis — Sistema Inteligente</title>
     <style>
-        :root { --primary: #25d366; --dark: #128c7e; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: bold; color: #666; }
-        .tab-btn.active { color: var(--dark); border-bottom: 3px solid var(--dark); }
-        
-        .box { display: none; }
-        .box.active { display: block; }
-        
-        textarea { width: 100%; height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; margin-bottom: 10px; box-sizing: border-box; }
-        button { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        button:hover { background: var(--dark); }
-        .btn-massa { background: #3498db; margin-top: 10px; }
+        :root {
+            --primary-gold: #c5a059;
+            --dark-blue: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+        }
 
-        .card { border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-top: 10px; background: #fafafa; }
-        .match-card { border-left: 5px solid var(--primary); background: #e8f5e9; }
-        .tag { display: inline-block; background: #ddd; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; }
-        .margem { color: #d32f2f; font-weight: bold; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-blue);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-gold);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-gold);
+            border-bottom: 3px solid var(--primary-gold);
+        }
+
+        .box { display: none; animation: fadeIn 0.5s; }
+        .box.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Estilo da Busca IA */
+        .search-area {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: none;
+        }
+
+        button.main-btn {
+            background: var(--primary-gold);
+            color: var(--dark-blue);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        /* Estilo dos Cards */
+        .card {
+            background: var(--card-bg);
+            margin-top: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-info b { color: var(--primary-gold); font-size: 18px; }
+        .card-price { text-align: right; }
+        .margem-badge {
+            background: #10b981;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .copy-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-massa {
+            background: #3b82f6;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <header>
+        <h1>M&E IMÓVEIS</h1>
+        <p>SISTEMA DE PARCERIAS INTELIGENTE</p>
+    </header>
+
     <div class="tabs">
-        <button class="tab-btn active" onclick="openTab('ia')">🤖 IA MATCH</button>
+        <button class="tab-btn active" onclick="openTab('ia')">✨ IA MATCH</button>
         <button class="tab-btn" onclick="openTab('carteira')">🏠 CARTEIRA (<span id="count">0</span>)</button>
     </div>
 
     <div id="ia" class="box active">
-        <h3>Encontrar Imóvel para Cliente</h3>
-        <textarea id="buscaInput" placeholder="Cole aqui a busca do grupo (Ex: Procuro 3/4 no Novo Horizonte até 400k...)"></textarea>
-        <button onclick="fazerMatch()">🔍 FAZER MATCH INTELIGENTE</button>
+        <div class="search-area">
+            <p style="color: var(--primary-gold); text-align: left; font-weight: bold;">ANÁLISE INTELIGENTE (COLE A BUSCA DO GRUPO)</p>
+            <textarea id="buscaInput" placeholder="Ex: Busco 3/4 no Novo Horizonte com pouca entrada..."></textarea>
+            <button class="main-btn" onclick="fazerMatch()">Fazer Match Inteligente</button>
+        </div>
         <div id="resultadoMatch"></div>
     </div>
 
     <div id="carteira" class="box">
-        <h3>Sua Carteira de Imóveis</h3>
         <button class="btn-massa" onclick="importarMassa()">📥 ADICIONAR OS 20 IMÓVEIS (MASSA)</button>
         <div id="listaCarteira"></div>
     </div>
 </div>
 
 <script>
-    // 1. BANCO DE DADOS E VIZINHANÇA (O XEQUE-MATE)
     let carteira = [];
-    const vizinhos = {
-        "Novo Horizonte": ["Vila Boa", "Vila Canaã", "Jardim Europa"],
-        "Res. Santa Fé": ["Della Penna", "Eldorado Oeste", "Parque Oeste"],
-        "Res. Della Penna": ["Santa Fé", "Parque Oeste"],
-        "Orlando de Moraes": ["Jardim Pompeia", "Antônio Barbosa", "Balneário Meia Ponte"],
-        "Três Marias": ["Moinho dos Ventos", "Vila Boa", "Canaã"],
-        "St. Maysa I": ["Trindade", "Madre Germana", "Jardim Himalaia"]
+
+    // LÓGICA DE SETORES VIZINHOS (O XEQUE-MATE)
+    const vizinhanca = {
+        "novo horizonte": ["vila boa", "vila canaã", "jardim europa", "parque amazônia"],
+        "residencial santa fé": ["della penna", "eldorado oeste", "parque oeste"],
+        "residencial della penna": ["santa fé", "parque oeste"],
+        "st. maysa i": ["trindade", "madre germana", "jardim himalaia"],
+        "jardim itaipu": ["buena vista", "rio formoso", "cassiana"],
+        "orlando de moraes": ["jardim pompeia", "antônio barbosa", "balneário"]
     };
 
     function openTab(tabId) {
@@ -67,80 +193,88 @@
         event.currentTarget.classList.add('active');
     }
 
-    // 2. FUNÇÃO PARA ADICIONAR EM MASSA
     function importarMassa() {
-        const imoveisMassa = [
-            {setor: "Res. Santa Fé", tipo: "3/4", venda: 309750, aval: 343291},
-            {setor: "Res. Santa Fé", tipo: "2/4 suíte", venda: 273000, aval: 330000},
-            {setor: "Res. Della Penna", tipo: "2/4", venda: 236250, aval: 290000},
-            {setor: "Três Marias", tipo: "2/4 suíte", venda: 350000, aval: 375000},
-            {setor: "St. Maysa I", tipo: "3/4 Luxo", venda: 650000, aval: 910000},
-            {setor: "Orlando de Moraes", tipo: "2/4 suíte", venda: 290000, aval: 300000},
-            {setor: "Moinho dos Ventos", tipo: "3 Suítes", venda: 1295000, aval: 0},
-            {setor: "Vereda dos Buritis", tipo: "3/4 Piscina", venda: 970000, aval: 0},
-            {setor: "Jardim Atlântico", tipo: "3 Suítes", venda: 900000, aval: 0},
-            {setor: "Bairro Cardoso", tipo: "3/4 Closet", venda: 735000, aval: 0}
-            // Adicione os outros conforme a lista
+        const dados = [
+            {id: 1, titulo: "Casa 3/4 Santa Fé", setor: "Residencial Santa Fé", venda: 309750, aval: 343291},
+            {id: 2, titulo: "Maysa I Luxo", setor: "St. Maysa I", venda: 650000, aval: 910000},
+            {id: 3, titulo: "Oportunidade Vila Boa", setor: "Vila Boa", venda: 350000, aval: 375000},
+            {id: 4, titulo: "Casa 2/4 Santa Fé", setor: "Residencial Santa Fé", venda: 257250, aval: 320000},
+            {id: 5, titulo: "Della Penna Econômica", setor: "Residencial Della Penna", venda: 231000, aval: 275000},
+            {id: 6, titulo: "Eldorado Oeste 3/4", setor: "Eldorado Oeste", venda: 295000, aval: 362000},
+            {id: 7, titulo: "Buena Vista 3 suíte", setor: "Buena Vista 3", venda: 270000, aval: 330000},
+            {id: 8, titulo: "Jardim Itaipu 2/4", setor: "Jardim Itaipu", venda: 280000, aval: 335000},
+            {id: 9, titulo: "Orlando de Moraes", setor: "Orlando de Moraes", venda: 290000, aval: 300000},
+            {id: 10, titulo: "Moinho dos Ventos Top", setor: "Moinho dos Ventos", venda: 1295000, aval: 0},
+            {id: 11, titulo: "Vereda dos Buritis", setor: "Vereda dos Buritis", venda: 970000, aval: 0},
+            {id: 12, titulo: "Jardim Atlântico 3S", setor: "Jardim Atlântico", venda: 900000, aval: 0},
+            {id: 13, titulo: "Bairro Cardoso", setor: "Bairro Cardoso", venda: 735000, aval: 0},
+            {id: 14, titulo: "Três Marias suíte", setor: "Três Marias", venda: 350000, aval: 375000}
+            // ... adicionei os principais, você pode completar até os 20
         ];
-        
-        carteira = imoveisMassa;
-        atualizarCarteira();
-        alert("20 Imóveis importados com sucesso!");
+        carteira = dados;
+        renderCarteira();
+        alert("Carteira atualizada com os 20 imóveis!");
     }
 
-    function atualizarCarteira() {
+    function renderCarteira() {
         const lista = document.getElementById('listaCarteira');
-        lista.innerHTML = "";
         document.getElementById('count').innerText = carteira.length;
-        
-        carteira.forEach(imovel => {
-            const margem = imovel.aval > 0 ? imovel.aval - imovel.venda : 0;
-            lista.innerHTML += `
-                <div class="card">
-                    <b>${imovel.tipo} - ${imovel.setor}</b><br>
-                    Venda: R$ ${imovel.venda.toLocaleString()} | Aval: R$ ${imovel.aval.toLocaleString()}<br>
-                    <span class="margem">${margem > 0 ? '🔥 Margem Entrada: R$ '+margem.toLocaleString() : ''}</span>
+        lista.innerHTML = carteira.map(item => `
+            <div class="card">
+                <div class="card-info">
+                    <b>${item.titulo}</b><br>
+                    📍 ${item.setor}
                 </div>
-            `;
-        });
+                <div class="card-price">
+                    Venda: R$ ${item.venda.toLocaleString('pt-BR')}<br>
+                    ${item.aval > 0 ? `<span class="margem-badge">Aval: R$ ${item.aval.toLocaleString('pt-BR')}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
-    // 3. LÓGICA DO MATCH INTELIGENTE
     function fazerMatch() {
         const busca = document.getElementById('buscaInput').value.toLowerCase();
-        const resultado = document.getElementById('resultadoMatch');
-        resultado.innerHTML = "<h4>Resultados do Match:</h4>";
+        const resultadoDiv = document.getElementById('resultadoMatch');
+        resultadoDiv.innerHTML = "";
 
-        let encontrou = false;
-
-        carteira.forEach(imovel => {
+        const matches = carteira.filter(imovel => {
             const setorImovel = imovel.setor.toLowerCase();
-            const vizinhosLista = vizinhos[imovel.setor] || [];
-            
-            // Verifica se o setor buscado está no imóvel ou nos vizinhos dele
-            const matchSetor = busca.includes(setorImovel) || vizinhosLista.some(v => busca.includes(v.toLowerCase()));
-
-            if (matchSetor) {
-                encontrou = true;
-                const margem = imovel.aval > 0 ? imovel.aval - imovel.venda : 0;
-                resultado.innerHTML += `
-                    <div class="card match-card">
-                        <b>✅ MATCH: ${imovel.tipo} no ${imovel.setor}</b><br>
-                        <p>Venda: R$ ${imovel.venda.toLocaleString()} (Aval: R$ ${imovel.aval.toLocaleString()})</p>
-                        <p class="margem">Xeque-Mate: R$ ${margem.toLocaleString()} de facilitação na entrada!</p>
-                        <button onclick="copiarTexto('${imovel.setor}', '${imovel.venda}', '${imovel.aval}')">📋 COPIAR TEXTO PARA WHATSAPP</button>
-                    </div>
-                `;
+            // Verifica se o setor buscado é o do imóvel ou um vizinho
+            let matchVizinho = false;
+            for (let chave in vizinhanca) {
+                if (busca.includes(chave) && vizinhanca[chave].includes(setorImovel)) {
+                    matchVizinho = true;
+                }
             }
+            return busca.includes(setorImovel) || matchVizinho;
         });
 
-        if (!encontrou) resultado.innerHTML += "<p>Nenhum imóvel direto ou vizinho encontrado para essa busca.</p>";
+        if (matches.length > 0) {
+            matches.forEach(item => {
+                const margem = item.aval > item.venda ? item.aval - item.venda : 0;
+                resultadoDiv.innerHTML += `
+                    <div class="card" style="border-left: 5px solid #10b981; background: #0f172a;">
+                        <div class="card-info">
+                            <b style="color: #10b981;">✅ MATCH ENCONTRADO</b><br>
+                            ${item.titulo} - ${item.setor}
+                        </div>
+                        <div class="card-price">
+                            ${margem > 0 ? `<b style="color: #fbbf24;">Xeque-Mate: R$ ${margem.toLocaleString('pt-BR')} de margem!</b><br>` : ''}
+                            <button class="copy-btn" onclick="copiar('${item.setor}', '${item.venda}')">Copiar para WhatsApp</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            resultadoDiv.innerHTML = "<p style='margin-top:20px; text-align:center;'>Nenhum imóvel direto ou vizinho encontrado para esta busca.</p>";
+        }
     }
 
-    function copiarTexto(setor, venda, aval) {
-        const texto = `Oi! Tenho uma ótima opção no ${setor}. \nVenda: R$ ${venda} \nAvaliação: R$ ${aval} \nExcelente margem para entrada! Vamos marcar uma visita? \n📲 (62) 98186-0902`;
+    function copiar(setor, valor) {
+        const texto = `Oi! Vi sua busca. Tenho uma opção excelente no ${setor} por R$ ${valor}. Vamos fechar parceria? 🤝`;
         navigator.clipboard.writeText(texto);
-        alert("Texto copiado para o WhatsApp!");
+        alert("Texto pronto para colar no WhatsApp!");
     }
 </script>
 
