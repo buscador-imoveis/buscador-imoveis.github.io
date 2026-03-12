@@ -553,9 +553,10 @@ body.light body::before { display:none; }
       <div class="form-group full">
         <label>📸 Fotos do Imóvel — Links do Exa Cloud</label>
         <textarea id="f-fotos" placeholder="Cole os links das fotos, um por linha:
-https://exacloud.com/sua-foto-1.jpg
-https://exacloud.com/sua-foto-2.jpg" style="min-height:80px;font-size:12px;"></textarea>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Cole o link direto de cada foto do Exa Cloud, uma por linha.</div>
+
+Google Drive: https://drive.google.com/file/d/ABC.../view
+Outros: https://link-direto-da-foto.jpg" style="min-height:80px;font-size:12px;"></textarea>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">✅ Links do Google Drive são convertidos automaticamente. Cole um link por linha.</div>
       </div>
       <div class="form-group">
         <label>👤 Nome do Proprietário / Captador</label>
@@ -1021,6 +1022,34 @@ window.lightboxNav = lightboxNav;
   });
 })();
 
+// ══════════════════════════════════════
+// GOOGLE DRIVE — CONVERTER LINKS
+// ══════════════════════════════════════
+// Converte qualquer link do Google Drive para link direto de imagem
+function converterLinkDrive(url){
+  if(!url) return url;
+  // Formato: /file/d/ID/view ou /file/d/ID/edit
+  const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(m1) return `https://lh3.googleusercontent.com/d/${m1[1]}`;
+  // Formato: id=ID
+  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m2) return `https://lh3.googleusercontent.com/d/${m2[1]}`;
+  // Formato open?id=ID
+  const m3 = url.match(/open\?id=([a-zA-Z0-9_-]+)/);
+  if(m3) return `https://lh3.googleusercontent.com/d/${m3[1]}`;
+  return url; // não é Drive, retorna original
+}
+window.converterLinkDrive = converterLinkDrive;
+
+// Processa array de links — converte Drive e filtra vazios
+function processarLinksfotos(texto){
+  return texto.split('\n')
+    .map(l=>l.trim())
+    .filter(l=>l.length>4&&l.startsWith('http'))
+    .map(converterLinkDrive);
+}
+window.processarLinksfotos = processarLinksfotos;
+
 // ── NAV ──
 function switchTab(tab,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -1130,7 +1159,7 @@ async function salvarImovel(){
   if(!nome||!tipo||!setor){toast('⚠️ Preencha nome, tipo e setor!');return;}
   const imovel={
     nome,tipo,setor,
-    fotos:(document.getElementById('f-fotos')?.value.trim().split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'))||[]),
+    fotos:processarLinksfotos(document.getElementById('f-fotos')?.value||''),
     contatoNome:document.getElementById('f-contato-nome')?.value.trim()||'',
     contatoTel:document.getElementById('f-contato-tel')?.value.trim().replace(/\D/g,'')||'',
     setoresProximos:document.getElementById('f-proximos').value.trim(),
@@ -1545,6 +1574,17 @@ valor/avaliacao: inteiros. financiamento "sim" se mencionar FGTS ou financiament
     if(info.avaliacao) document.getElementById('f-avaliacao').value=info.avaliacao;
     if(info.obs) document.getElementById('f-obs').value=info.obs;
     document.getElementById('f-msg').value = info.descricao || texto;
+
+    // Detecta links no texto colado e preenche campo de fotos
+    const urlsNoTexto = texto.match(/https?:\/\/[^\s\n]+/g) || [];
+    const fotosDiretas = urlsNoTexto.filter(u => /\.(jpg|jpeg|png|webp)/i.test(u));
+    const linksPastas  = urlsNoTexto.filter(u => !/\.(jpg|jpeg|png|webp)/i.test(u));
+    if(fotosDiretas.length){
+      document.getElementById('f-fotos').value = fotosDiretas.join('\n');
+    } else if(linksPastas.length){
+      // salva link da pasta como referência
+      document.getElementById('f-fotos').value = linksPastas[0];
+    }
 
     if(info.tipo){const sel=document.getElementById('f-tipo');for(let o of sel.options){if(o.value===info.tipo||o.text===info.tipo){sel.value=o.value;break;}}}
     if(info.quartos!=null) document.getElementById('f-quartos').value=Math.min(info.quartos,5);
@@ -2256,7 +2296,7 @@ async function salvarEdicao(id){
     contatoNome: document.getElementById('ef-contato-nome')?.value.trim()||'',
     contatoTel: document.getElementById('ef-contato-tel')?.value.trim().replace(/\D/g,'')||'',
     obs: document.getElementById('ef-obs')?.value.trim()||'',
-    fotos: (document.getElementById('ef-fotos')?.value.trim().split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'))||[]),
+    fotos: processarLinksfotos(document.getElementById('ef-fotos')?.value||''),
   };
   if(!updates.nome||!updates.tipo||!updates.setor){ toast('⚠️ Nome, tipo e setor são obrigatórios!'); return; }
   try{
@@ -2409,9 +2449,19 @@ function gerarBookImovel(id){
     `<span style="background:#C9A84C22;color:#8B6F2E;border:1px solid #C9A84C55;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;">${g}</span>`
   ).join('');
 
-  const galHtml = fotoGaleria.length ? `
-    <div style="display:grid;grid-template-columns:repeat(${Math.min(fotoGaleria.length,3)},1fr);gap:8px;margin-bottom:24px;">
-      ${fotoGaleria.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;" onerror="this.style.display='none'">`).join('')}
+  const isImgUrl = u => /\.(jpg|jpeg|png|webp|gif)/i.test(u);
+  const fotosImagens = fotos.filter(isImgUrl);
+  const fotoHeroImg = fotosImagens[0] || '';
+  const galFotos = fotosImagens.slice(1);
+  const galHtml = galFotos.length ? `
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(galFotos.length,3)},1fr);gap:8px;margin-bottom:24px;">
+      ${galFotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;" onerror="this.style.display='none'">`).join('')}
+    </div>` : '';
+  // Se tem link de pasta mas não imagens diretas, mostra aviso
+  const linksPastaBook = fotos.filter(u=>!isImgUrl(u));
+  const pastaHtml = !fotosImagens.length && linksPastaBook.length ? `
+    <div style="background:#f8f6f2;border:1px solid #d4c9a8;border-radius:10px;padding:16px 18px;margin-bottom:24px;font-size:13px;color:#5a4a2a;">
+      📸 Fotos disponíveis: <a href="${linksPastaBook[0]}" target="_blank" style="color:#8B6F2E;font-weight:700;">${linksPastaBook[0]}</a>
     </div>` : '';
 
   const html = `<!DOCTYPE html>
@@ -2525,7 +2575,7 @@ function gerarBookImovel(id){
 
 <!-- ══ CAPA ══ -->
 <div class="capa">
-  <div class="capa-foto" style="${fotoHero?'background-image:url('+fotoHero+')':''}">
+  <div class="capa-foto" style="${fotoHeroImg?'background-image:url('+fotoHeroImg+')':''}">
     <div class="capa-overlay">
       <div class="capa-tag">📍 ${im.setor||'Goiânia - GO'}</div>
       <div class="capa-nome">${im.nome}</div>
@@ -2586,6 +2636,7 @@ function gerarBookImovel(id){
   <div class="obs-box">${im.msgDivulgacao||im.obs}</div>` : ''}
 
   <!-- GALERIA -->
+  ${pastaHtml||''}
   ${galHtml ? `<div class="section-title">📸 Galeria de Fotos</div>${galHtml}` : ''}
 
   <!-- CONTATO -->
