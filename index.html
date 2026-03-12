@@ -288,15 +288,33 @@ body.light body::before { display:none; }
 <!-- BOTTOM NAV (mobile only) -->
 <nav id="bottom-nav">
   <div class="bnav-scroll">
-    <button class="bnav-btn active" data-tab="buscar"   onclick="switchTabMobile('buscar',this)"><span class="bnav-icon">🔍</span>Buscar</button>
-    <button class="bnav-btn"        data-tab="meus"     onclick="switchTabMobile('meus',this)"><span class="bnav-icon">🏠</span>Carteira</button>
-    <button class="bnav-btn"        data-tab="cadastrar" onclick="switchTabMobile('cadastrar',this)"><span class="bnav-icon">➕</span>Cadastrar</button>
-    <button class="bnav-btn"        data-tab="entrada"  onclick="switchTabMobile('entrada',this)"><span class="bnav-icon">💚</span>Entrada</button>
-    <button class="bnav-btn"        data-tab="crm"      onclick="switchTabMobile('crm',this)"><span class="bnav-icon">🤝</span>CRM</button>
-    <button class="bnav-btn"        data-tab="lote"     onclick="switchTabMobile('lote',this)"><span class="bnav-icon">📦</span>Em Lote</button>
-    <button class="bnav-btn"        data-tab="importar" onclick="switchTabMobile('importar',this)"><span class="bnav-icon">📥</span>Importar</button>
-    <button class="bnav-btn"        data-tab="historico" onclick="switchTabMobile('historico',this)"><span class="bnav-icon">🕐</span>Histórico</button>
-    <button class="bnav-btn"        data-tab="dashboard" onclick="switchTabMobile('dashboard',this)"><span class="bnav-icon">📊</span>Dashboard</button>
+    <button class="bnav-btn active" data-tab="buscar" onclick="switchTabMobile('buscar',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Buscar</button>
+    <button class="bnav-btn" data-tab="meus" onclick="switchTabMobile('meus',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Carteira</button>
+    <button class="bnav-btn" data-tab="cadastrar" onclick="switchTabMobile('cadastrar',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Cadastrar</button>
+    <button class="bnav-btn" data-tab="entrada" onclick="switchTabMobile('entrada',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      Entrada</button>
+    <button class="bnav-btn" data-tab="crm" onclick="switchTabMobile('crm',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      CRM</button>
+    <button class="bnav-btn" data-tab="lote" onclick="switchTabMobile('lote',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Em Lote</button>
+    <button class="bnav-btn" data-tab="importar" onclick="switchTabMobile('importar',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Importar</button>
+    <button class="bnav-btn" data-tab="historico" onclick="switchTabMobile('historico',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Histórico</button>
+    <button class="bnav-btn" data-tab="dashboard" onclick="switchTabMobile('dashboard',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Dashboard</button>
   </div>
 </nav>
 
@@ -713,6 +731,35 @@ window.addEventListener('load',()=>carregarImoveis());
 </script>
 
 <script>
+// ══════════════════════════════════════
+// FETCH HELPER — retry + timeout para mobile
+// ══════════════════════════════════════
+async function apiFetch(body, tentativas=3){
+  for(let i=0; i<tentativas; i++){
+    const controller = new AbortController();
+    const tid = setTimeout(()=>controller.abort(), 20000); // 20s timeout
+    try{
+      const resp = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        signal: controller.signal,
+        headers:{
+          "Content-Type":"application/json",
+          "anthropic-dangerous-direct-browser-calls":"true"
+        },
+        body: JSON.stringify(body)
+      });
+      clearTimeout(tid);
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      return await resp.json();
+    }catch(e){
+      clearTimeout(tid);
+      if(i === tentativas-1) throw e;
+      await new Promise(r=>setTimeout(r, 1200*(i+1))); // espera antes de retry
+    }
+  }
+}
+window.apiFetch = apiFetch;
+
 // ── NAV ──
 function switchTab(tab,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -1012,11 +1059,7 @@ Responda SOMENTE JSON sem markdown:
 Score >= 40 apenas. Máximo 5 resultados. Ordem decrescente de score. Extraia contato_nome e contato_tel se aparecerem na mensagem.`;
 
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
-    });
-    const data=await resp.json();
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]});
     const raw=data.content?.map(c=>c.text||'').join('');
     let res; try{res=JSON.parse(raw.trim());}catch{const m=raw.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
     if(!res?.resultados) throw new Error('Resposta inválida');
@@ -1149,11 +1192,7 @@ Posso te enviar o book de fotos agora no privado?"
 Escreva apenas o script, direto, com emojis.`;
 
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]})
-    });
-    const data=await resp.json();
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]});
     const texto=data.content?.map(c=>c.text||'').join('').trim();
     div.innerHTML=`
       <div style="margin-top:10px;font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">✉️ Script 50/50 — mande no privado do corretor</div>
@@ -1176,11 +1215,7 @@ ${im.gatilhos?.length?'Gatilhos: '+im.gatilhos.join(', '):''}
 Seja direta, emojis moderados. Diga que tem opção e convide pro privado.`;
 
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:250,messages:[{role:"user",content:prompt}]})
-    });
-    const data=await resp.json();
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:250,messages:[{role:"user",content:prompt}]});
     const texto=data.content?.map(c=>c.text||'').join('').trim();
     div.innerHTML=`
       <div class="wpp-output" id="txtrap-${id}" style="margin-top:9px;">${texto}</div>
@@ -1228,11 +1263,7 @@ Gatilhos possíveis: MCMV, Alto Padrão, Entrada Zero, Avaliação Alta, Aceita 
 valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGTS. "Avaliação Alta" se avaliacao>valor. "Entrada Zero" se (avaliacao-valor)/avaliacao>=0.8.`;
 
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:prompt}]})
-    });
-    const data=await resp.json();
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:700,messages:[{role:"user",content:prompt}]});
     const raw=data.content?.map(c=>c.text||'').join('').trim();
     let info; try{info=JSON.parse(raw);}catch{const m=raw.match(/\{[\s\S]*\}/);info=m?JSON.parse(m[0]):null;}
     if(!info) throw new Error('Não consegui interpretar');
@@ -1261,7 +1292,8 @@ valor/avaliacao: inteiros. financiamento "sim" se mencionar financiamento ou FGT
     status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(76,175,130,.1);border:1px solid rgba(76,175,130,.3);border-radius:9px;font-size:13px;color:var(--green);">✅ Formulário preenchido! Confira os dados e clique em <strong>Salvar Imóvel</strong>.</div>`;
     setTimeout(()=>document.getElementById('f-nome').scrollIntoView({behavior:'smooth',block:'center'}),300);
   }catch(e){
-    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);border-radius:9px;font-size:13px;color:var(--red);">❌ ${e.message}. Preencha manualmente.</div>`;
+    const errMsg = e.name==='AbortError'?'Timeout — verifique sua internet e tente novamente.':e.message;
+    status.innerHTML=`<div style="margin-top:10px;padding:10px 14px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);border-radius:9px;font-size:13px;color:var(--red);">❌ ${errMsg}<br><small style="opacity:.7;">Tentou 3x automaticamente. Preencha manualmente se o erro persistir.</small></div>`;
   }
 }
 window.preencherComIA=preencherComIA;
@@ -1324,11 +1356,7 @@ Responda SOMENTE JSON sem markdown:
 Score >= 40 apenas. Máximo 3 resultados por mensagem. Mais relevante primeiro.`;
 
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})
-    });
-    const data=await resp.json();
+    const data=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]});
     const raw2=data.content?.map(c=>c.text||'').join('');
     let res; try{res=JSON.parse(raw2.trim());}catch{const m=raw2.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
     if(!res?.analise) throw new Error('Resposta inválida');
@@ -1415,8 +1443,7 @@ Gatilhos: ${(im.gatilhos||[]).join(', ')||'—'}
 Modelo: "Olá [nome], vi sua busca para [setor]. M&E Imóveis:\\n🏠 [tipo]\\n💰 Venda R$X | Avaliação R$Y\\n🚀 [diferencial]\\n🤝 Parceria 50/50.\\nPosso enviar book de fotos?"
 Apenas o script, emojis, direto.`;
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-calls":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
-      const d=await r.json(); const t=d.content?.map(c=>c.text||'').join('').trim();
+      const d=await apiFetch({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]}); const t=d.content?.map(c=>c.text||'').join('').trim();
       div.innerHTML=`<div class="wpp-output" id="txl-${id}" style="margin-top:8px;">${t}</div><button class="btn btn-gold btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('txl-${id}').textContent).then(()=>toast('📋 Copiado!'))">📋 Copiar</button>`;
     }catch{div.innerHTML='<p style="color:var(--red);font-size:12px;padding-top:6px;">Erro.</p>';}
     return;
@@ -2270,13 +2297,9 @@ async function verificarAlertas(){
     // usa IA para checar match
     const lista = cache.map((im,i)=>({indice:i,nome:im.nome,tipo:im.tipo,setor:im.setor,quartos:im.quartos,valor:im.valor,gatilhos:im.gatilhos||[]}));
     try{
-      const r = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-calls':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:
+      const d = await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:
           `Busca: "${alerta.texto}"\nImóveis: ${JSON.stringify(lista)}\nResponda SOMENTE JSON: {"matches":[{"indice":0,"score":80}]} — apenas score>=60, máx 3.`
-        }]})
-      });
-      const d = await r.json();
+        }]});
       const raw = d.content?.map(c=>c.text||'').join('').trim();
       let res; try{res=JSON.parse(raw);}catch{const m=raw.match(/\{[\s\S]*\}/);res=m?JSON.parse(m[0]):null;}
       if(res?.matches?.length){
