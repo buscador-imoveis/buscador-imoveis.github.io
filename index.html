@@ -249,6 +249,10 @@ body.light body::before { display:none; }
     </div>
     <div id="voz-status" style="font-size:11px;color:var(--text-dim);margin-top:5px;display:none;">🔴 Ouvindo... fale a mensagem do grupo</div>
     <button class="btn btn-gold btn-full" style="margin-top:12px;" onclick="buscarComIA()">✨ Buscar com Inteligência Artificial</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 12px;background:rgba(76,175,130,.08);border:1px solid rgba(76,175,130,.2);border-radius:8px;">
+      <input type="checkbox" id="filtro-margem-alta" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;">
+      <label for="filtro-margem-alta" style="font-size:12px;color:var(--green);cursor:pointer;font-weight:600;">🚀 Apenas com Margem Alta (ENTRADA ZERO) — prioriza imóveis onde o cliente precisa de menos sinal</label>
+    </div>
   </div>
   <!-- MAPA -->
   <div id="mapa-container" style="display:none;">
@@ -443,6 +447,23 @@ Procuro lote no Jardim América ou região, até 80k. Tem alguém?"></textarea>
       <span class="filtro-chip" data-fv="600+" onclick="setFiltroValor(this)">R$ 600k+</span>
     </div>
   </div>
+  <div style="margin-bottom:12px;">
+    <button class="btn btn-outline btn-full" onclick="abrirPlanilhaRapida()" style="border-color:var(--gold-dim);color:var(--gold);">📥 Importar Planilha Rápida</button>
+  </div>
+  <div id="planilha-rapida-modal" style="display:none;background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:15px;padding:20px;margin-bottom:16px;animation:fadeUp .3s ease;">
+    <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);margin-bottom:8px;">📥 Importar Planilha Rápida</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">Cole uma lista simples no formato: <strong style="color:var(--text);">Setor, Valor, Avaliação</strong> — uma por linha. A IA cadastra tudo como Casa com nome automático.</p>
+    <textarea id="planilha-rapida-input" style="width:100%;min-height:130px;padding:12px;font-size:13px;line-height:1.8;background:var(--navy-soft);border:1px solid var(--navy-border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;" placeholder="Setor Marista, 380000, 460000
+Jardim Goiás, 290000, 350000
+St. Maysa, 250000, 310000
+Setor Bueno, 520000, 640000
+Moinho dos Ventos, 220000, 280000"></textarea>
+    <div id="planilha-rapida-status" style="margin-top:8px;font-size:12px;color:var(--text-dim);"></div>
+    <div style="display:flex;gap:9px;margin-top:12px;">
+      <button class="btn btn-gold" style="flex:1;justify-content:center;" onclick="processarPlanilhaRapida()">💾 Cadastrar Todos</button>
+      <button class="btn btn-outline" onclick="document.getElementById('planilha-rapida-modal').style.display='none'">Fechar</button>
+    </div>
+  </div>
   <div id="lista-imoveis"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
 </div>
 
@@ -561,6 +582,31 @@ function calcularMargem(){
 }
 window.calcularMargem=calcularMargem;
 
+// ── FÁBRICA DE COPY ──
+function gerarCopyWhatsapp(im){
+  const margem = im.avaliacao && im.avaliacao > im.valor ? im.avaliacao - im.valor : 0;
+  const pct = margem ? Math.round((margem/im.avaliacao)*100) : 0;
+  const xequeMate = margem ? `🎯 *Xeque-mate:* Avaliação ${fmtCur(im.avaliacao)} vs Venda ${fmtCur(im.valor)} — margem de *${fmtCur(margem)}* (${pct}% a menos!)` : '';
+  const entradaZero = margem && pct >= 20 ? '🚀 *ENTRADA ZERO* — o banco cobre tudo!' : '';
+  const setor = im.setor || 'Goiânia';
+  const quartos = im.quartos ? `${im.quartos} quartos` : '';
+  const financ = im.financiamento === 'sim' ? '✅ Aceita financiamento/FGTS' : '';
+  const linhas = [
+    `🏠 *${im.nome}*`,
+    `📍 ${setor}${quartos ? ' · ' + quartos : ''}${im.area ? ' · ' + im.area + 'm²' : ''}`,
+    `💰 *${fmtCur(im.valor)}*`,
+    xequeMate,
+    entradaZero,
+    financ,
+    (im.gatilhos||[]).length ? '🏷️ ' + im.gatilhos.join(' · ') : '',
+    im.obs ? `✨ ${im.obs}` : '',
+    '',
+    `🤝 Parceria 50/50 — chama no privado!`
+  ].filter(Boolean).join('\n');
+  return linhas;
+}
+window.gerarCopyWhatsapp = gerarCopyWhatsapp;
+
 // ── SALVAR ──
 async function salvarImovel(){
   const nome=document.getElementById('f-nome').value.trim();
@@ -582,6 +628,7 @@ async function salvarImovel(){
     msgDivulgacao:document.getElementById('f-msg').value.trim(),
     criadoEm:window._ts()
   };
+  imovel.copy_whatsapp = gerarCopyWhatsapp(imovel);
   try{
     await window._add(window._col(window._db,'buscador_imoveis'),imovel);
     toast('✅ Imóvel salvo!');
@@ -713,13 +760,34 @@ async function buscarComIA(){
 
   container.innerHTML='<div class="loading"><div class="spinner"></div> Analisando mensagem...</div>';
 
-  const lista=cache.map((im,i)=>({
-    indice:i,nome:im.nome,tipo:im.tipo,setor:im.setor,
+  const apenasMargemAlta = document.getElementById('filtro-margem-alta')?.checked;
+  let fonteCache = cache;
+  if(apenasMargemAlta){
+    fonteCache = cache.filter(im=>im.avaliacao && im.avaliacao > im.valor && (im.avaliacao-im.valor)/im.avaliacao >= 0.20);
+    if(!fonteCache.length){ container.innerHTML='<div class="empty"><div class="emoji">🚀</div><p>Nenhum imóvel com margem alta cadastrado. Desmarque o filtro ou cadastre imóveis com Avaliação Bancária maior que 20% acima do valor.</p></div>'; return; }
+  }
+  const lista=fonteCache.map((im,i)=>({
+    indice:cache.indexOf(im),nome:im.nome,tipo:im.tipo,setor:im.setor,
     setoresProximos:im.setoresProximos||'',
     quartos:im.quartos,area:im.area,valor:im.valor,avaliacao:im.avaliacao||0,
     financiamento:im.financiamento,permuta:im.permuta,
     gatilhos:im.gatilhos||[],obs:im.obs||''
   }));
+
+  const filtroMargemMsg = apenasMargemAlta ? '\n\nFILTRO ATIVO: Priorize especialmente imóveis onde (avaliacao-valor)/avaliacao >= 0.20 — são os de ENTRADA ZERO.' : '';
+
+  // Detecta setores mencionados na mensagem e adiciona vizinhos ao contexto
+  const setoresMencionados = [];
+  SETORES_GOIANIA.forEach(s=>{
+    if(msg.toLowerCase().includes(s.nome.toLowerCase().split(' ').slice(-1)[0].toLowerCase())) setoresMencionados.push(s.nome);
+  });
+  Object.keys(VIZINHANCA).forEach(k=>{
+    if(msg.toLowerCase().includes(k.toLowerCase().split(' ').slice(-1)[0].toLowerCase()) && !setoresMencionados.includes(k)) setoresMencionados.push(k);
+  });
+  const vizinhancaCtx = setoresMencionados.length
+    ? '\n\nMAPEAMENTO DE VIZINHANÇA (use para sugerir setores próximos):\n' +
+      setoresMencionados.map(s=>`${s} → vizinhos: ${(VIZINHANCA[s]||getSetoresVizinhos(s)).join(', ')}`).join('\n')
+    : '';
 
   const prompt=`Você é assistente da M&E Imóveis em Goiânia.
 
@@ -730,6 +798,7 @@ Imóveis disponíveis:
 ${JSON.stringify(lista,null,2)}
 
 Encontre os mais compatíveis. Considere setor E setoresProximos, tipo, valor, quartos, gatilhos.
+Se um imóvel estiver em setor VIZINHO ao buscado, adicione "Sugestão por Proximidade" nos pontos_match.${filtroMargemMsg}${vizinhancaCtx}
 Responda SOMENTE JSON sem markdown:
 {"interpretacao":"o que buscam em 1-2 frases","resultados":[{"indice":0,"score":92,"motivo":"por que atende","pontos_match":["setor próximo","3q","MCMV"]}]}
 Score >= 40 apenas. Máximo 5 resultados. Ordem decrescente de score.`;
@@ -774,6 +843,7 @@ function renderResultados(res,msgOrig){
         ${(r.pontos_match||[]).map(p=>`<span class="tag match">✓ ${p}</span>`).join('')}
         ${(im.gatilhos||[]).map(g=>`<span class="tag gatilho">${g}</span>`).join('')}
         ${margem?`<span class="tag margem">📈 +${fmtCur(margem)}</span>`:''}
+        ${(margem&&(margem/im.avaliacao)>=0.20)?`<span class="tag" style="background:rgba(76,175,130,.25);color:var(--green);border:1px solid var(--green);font-weight:700;">🚀 ENTRADA ZERO</span>`:''}
       </div>
       <div class="res-preco">${fmtCur(im.valor)}</div>
       ${im.avaliacao?`<div class="res-aval">Avaliação: ${fmtCur(im.avaliacao)}</div>`:''}
@@ -781,9 +851,11 @@ function renderResultados(res,msgOrig){
       <div class="res-motivo">💡 ${r.motivo}</div>
       <div class="res-actions">
         ${im.msgDivulgacao?`<button class="btn btn-outline btn-sm" onclick="copiarMsg('${im.id}')">📋 Copiar anúncio</button>`:''}
+        <button class="btn btn-gold btn-sm" onclick="toggleScriptWpp('${im.id}')">📲 Copiar Script</button>
         <button class="btn btn-gold btn-sm" onclick="gerarScript50('${im.id}','b',\`${safeMsg}\`)">🤝 Script 50/50</button>
         <button class="btn btn-outline btn-sm" onclick="gerarRapida('${im.id}',\`${safeMsg}\`)">💬 Resposta rápida</button>
       </div>
+      <div id="copy-wpp-${im.id}" style="display:none;margin-top:8px;"></div>
       <div id="s50b-${im.id}"></div>
       <div id="rap-${im.id}"></div>
     </div>`;
@@ -876,6 +948,20 @@ function copiarMsg(id){
   navigator.clipboard.writeText(im.msgDivulgacao).then(()=>toast('📋 Anúncio copiado!'));
 }
 window.copiarMsg=copiarMsg;
+
+// ── COPIAR SCRIPT WHATSAPP (Fábrica de Copy) ──
+function toggleScriptWpp(id){
+  const im=cache.find(i=>i.id===id); if(!im)return;
+  const div=document.getElementById("copy-wpp-"+id); if(!div)return;
+  if(div.style.display!=="none"){ div.style.display="none"; return; }
+  const texto=im.copy_whatsapp || gerarCopyWhatsapp(im);
+  div.style.display="block";
+  div.innerHTML=`
+    <div style="font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">📲 Script WhatsApp — pronto para colar</div>
+    <div class="wpp-output" id="scriptwpp-${id}" style="white-space:pre-wrap;">${texto}</div>
+    <button class="btn btn-gold btn-sm" style="margin-top:7px;" onclick="navigator.clipboard.writeText(document.getElementById('scriptwpp-${id}').textContent).then(()=>toast('📲 Script copiado!'))">📋 Copiar</button>`;
+}
+window.toggleScriptWpp=toggleScriptWpp;
 
 // ── PREENCHER COM IA ──
 async function preencherComIA(){
@@ -1231,6 +1317,59 @@ async function confirmarImportacao(lista){
 }
 window.confirmarImportacao=confirmarImportacao;
 
+// ══════════════════════════════════════
+// IMPORTAR PLANILHA RÁPIDA
+// ══════════════════════════════════════
+function abrirPlanilhaRapida(){
+  const modal = document.getElementById('planilha-rapida-modal');
+  modal.style.display = modal.style.display==='none'?'block':'none';
+}
+window.abrirPlanilhaRapida=abrirPlanilhaRapida;
+
+async function processarPlanilhaRapida(){
+  const texto = document.getElementById('planilha-rapida-input').value.trim();
+  if(!texto){toast('⚠️ Cole a lista primeiro!');return;}
+  const status = document.getElementById('planilha-rapida-status');
+  const linhas = texto.split(/\n/).map(l=>l.trim()).filter(l=>l.length>2);
+  const imoveis = [];
+  for(const linha of linhas){
+    const partes = linha.split(/,|;|\t/).map(p=>p.trim());
+    if(partes.length < 2) continue;
+    const setor = partes[0];
+    const valor = parseFloat((partes[1]||'').replace(/[^\d.,]/g,'').replace('.','').replace(',','.')) || 0;
+    const avaliacao = parseFloat((partes[2]||'').replace(/[^\d.,]/g,'').replace('.','').replace(',','.')) || 0;
+    if(!setor || !valor) continue;
+    const gatilhos=[];
+    if(avaliacao && avaliacao>valor){ gatilhos.push('Avaliação Alta'); }
+    if(avaliacao && valor && (avaliacao-valor)/avaliacao>=0.20){ gatilhos.push('Entrada Zero'); }
+    const im = {
+      nome:`Casa ${setor}`,
+      tipo:'Casa', setor, setoresProximos:'',
+      quartos:3, suites:1, area:0,
+      valor, avaliacao,
+      financiamento:'sim', permuta:'nao',
+      gatilhos, obs:'', msgDivulgacao:''
+    };
+    im.copy_whatsapp = gerarCopyWhatsapp(im);
+    imoveis.push(im);
+  }
+  if(!imoveis.length){toast('⚠️ Nenhum imóvel identificado. Verifique o formato.');return;}
+  status.innerHTML=`<span style="color:var(--gold);">⏳ Cadastrando ${imoveis.length} imóveis...</span>`;
+  let ok=0,err=0;
+  for(const im of imoveis){
+    try{
+      await window._add(window._col(window._db,'buscador_imoveis'),{...im,criadoEm:window._ts()});
+      ok++;
+    }catch(e){err++;}
+    await new Promise(r=>setTimeout(r,250));
+  }
+  status.innerHTML=`<span style="color:var(--green);">✅ ${ok} imóveis cadastrados!${err?' ⚠️ '+err+' erros':''}</span>`;
+  toast(`✅ ${ok} imóveis importados via planilha rápida!`);
+  await carregarImoveis();
+  setTimeout(()=>{ document.getElementById('planilha-rapida-modal').style.display='none'; },2000);
+}
+window.processarPlanilhaRapida=processarPlanilhaRapida;
+
 
 // ══════════════════════════════════════
 // VOZ
@@ -1524,7 +1663,7 @@ const SETORES_GOIANIA = [
   {id:'setor-coimbra',nome:'Setor Coimbra',x:120,y:205,w:75,h:55,vizinhos:['vila-nova','setor-oeste','setor-aeroporto']},
 
   // Sul / Marista / Bueno
-  {id:'setor-sul',nome:'Setor Sul',x:255,y:220,w:85,h:60,vizinhos:['setor-central','setor-oeste','setor-bueno','setor-marista']},
+  {id:'setor-sul',nome:'Setor Sul',x:255,y:220,w:85,h:60,vizinhos:['setor-central','setor-oeste','setor-bueno','setor-marista','jardim-goias']},
   {id:'setor-bueno',nome:'Setor Bueno',x:345,y:215,w:80,h:60,vizinhos:['st-west','setor-central','setor-sul','setor-marista','nova-suica']},
   {id:'setor-marista',nome:'Setor Marista',x:320,y:278,w:85,h:55,vizinhos:['setor-bueno','setor-sul','nova-suica','jardim-goias']},
   {id:'nova-suica',nome:'Nova Suíça',x:415,y:265,w:75,h:55,vizinhos:['setor-bueno','setor-marista','jardim-goias','setor-pedro-ludovico']},
@@ -1535,7 +1674,7 @@ const SETORES_GOIANIA = [
 
   // Sul / Aeroporto
   {id:'setor-aeroporto',nome:'Setor Aeroporto',x:130,y:262,w:80,h:55,vizinhos:['setor-coimbra','setor-oeste','setor-sul']},
-  {id:'jardim-atlantico',nome:'Jardim Atlântico',x:145,y:318,w:80,h:55,vizinhos:['setor-aeroporto','jardim-america','moinho-ventos']},
+  {id:'jardim-atlantico',nome:'Jardim Atlântico',x:145,y:318,w:80,h:55,vizinhos:['setor-aeroporto','jardim-america','moinho-ventos','faicalville','parque-amazonia','moinho-ventos']},
 
   // Região Maysa / Santa Fé / Della Penna
   {id:'st-maysa',nome:'St. Maysa I',x:60,y:90,w:90,h:60,vizinhos:['jardim-america','jardim-himalaia','res-santa-fe','eldorado-oeste']},
@@ -1553,7 +1692,43 @@ const SETORES_GOIANIA = [
   {id:'vereda-buritis',nome:'Vereda dos Buritis',x:415,y:375,w:85,h:55,vizinhos:['bairro-cardoso','alto-do-vale','setor-recanto']},
   {id:'alto-do-vale',nome:'Alto do Vale',x:500,y:340,w:75,h:55,vizinhos:['vereda-buritis','bairro-cardoso','setor-recanto','setor-pedro-ludovico']},
   {id:'setor-recanto',nome:'Setor Recanto',x:500,y:285,w:75,h:55,vizinhos:['alto-do-vale','setor-pedro-ludovico','jardim-goias']},
+
+  // Novos setores — Prompt 4
+  {id:'faicalville',nome:'Faiçalville',x:75,y:318,w:75,h:55,vizinhos:['jardim-atlantico','parque-amazonia','st-maysa']},
+  {id:'parque-amazonia',nome:'Parque Amazônia',x:75,y:373,w:75,h:55,vizinhos:['jardim-atlantico','faicalville','moinho-ventos','bairro-itapoa']},
+  {id:'bairro-itapoa',nome:'Bairro Itapoã',x:152,y:430,w:80,h:55,vizinhos:['parque-amazonia','goiania-viva','parque-oeste','santa-fe-itapoa']},
+  {id:'goiania-viva',nome:'Goiânia Viva',x:235,y:430,w:80,h:55,vizinhos:['bairro-itapoa','parque-oeste','moinho-ventos']},
+  {id:'parque-oeste',nome:'Parque Oeste',x:320,y:430,w:80,h:55,vizinhos:['bairro-itapoa','goiania-viva','santa-fe-itapoa','bairro-cardoso']},
+  {id:'santa-fe-itapoa',nome:'Santa Fé',x:235,y:485,w:80,h:45,vizinhos:['bairro-itapoa','goiania-viva','parque-oeste']},
 ];
+
+// ══ MAPA DE VIZINHANÇA EXPLÍCITA (Prompt 4) ══
+const VIZINHANCA = {
+  'Setor Sul':        ['Setor Marista','Setor Bueno','Jardim Goiás'],
+  'Jardim Atlântico': ['Faiçalville','Parque Amazônia','Moinho dos Ventos'],
+  'Bairro Itapoã':    ['Goiânia Viva','Parque Oeste','Santa Fé'],
+  // Reversos automáticos
+  'Setor Marista':    ['Setor Sul','Setor Bueno','Jardim Goiás'],
+  'Setor Bueno':      ['Setor Sul','Setor Marista','Jardim Goiás'],
+  'Jardim Goiás':     ['Setor Sul','Setor Marista','Setor Bueno'],
+  'Faiçalville':      ['Jardim Atlântico','Parque Amazônia','Moinho dos Ventos'],
+  'Parque Amazônia':  ['Jardim Atlântico','Faiçalville','Moinho dos Ventos'],
+  'Goiânia Viva':     ['Bairro Itapoã','Parque Oeste','Santa Fé'],
+  'Parque Oeste':     ['Bairro Itapoã','Goiânia Viva','Santa Fé'],
+  'Santa Fé':         ['Bairro Itapoã','Goiânia Viva','Parque Oeste'],
+  'Moinho dos Ventos':['Jardim Atlântico','Faiçalville','Parque Amazônia'],
+};
+window.VIZINHANCA=VIZINHANCA;
+
+function getSetoresVizinhos(setor){
+  // busca na VIZINHANCA primeiro, depois no mapa SVG
+  const direto = Object.entries(VIZINHANCA).find(([k])=>k.toLowerCase()===setor.toLowerCase());
+  if(direto) return direto[1];
+  const mapSetor = SETORES_GOIANIA.find(s=>matchSetor(setor,s));
+  if(mapSetor) return mapSetor.vizinhos.map(id=>{const s=getSetorById(id);return s?s.nome:id;});
+  return [];
+}
+window.getSetoresVizinhos=getSetoresVizinhos;
 
 // Normaliza nome para comparar com setores do mapa
 function normalizarSetor(nome){
@@ -1614,7 +1789,7 @@ function atualizarMapa(res, msgOrig){
   });
 
   // Gera SVG
-  const W=590, H=510;
+  const W=590, H=560;
   let svgContent = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="background:#0D1B2A;border-radius:10px;">`;
   
   // Grade sutil
